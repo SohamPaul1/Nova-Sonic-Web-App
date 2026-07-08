@@ -1,0 +1,6 @@
+.venv/
+.env
+Agent.log
+test*
+*.md
+__pycache__/
