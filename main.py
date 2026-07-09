@@ -841,22 +841,34 @@ class BedrockStreamManager:
             await self.send_audio_content_end_event()
             await self.send_prompt_end_event()
             await self.send_session_end_event()
-            
-            # Give the server a moment to send the final ACK and close the output stream gracefully
-            if self.response_task and not self.response_task.done():
-                try:
-                    await asyncio.wait_for(self.response_task, timeout=1.0)
-                except asyncio.TimeoutError:
-                    debug_print("Response task didn't close in time, cancelling...")
-                    self.response_task.cancel()
         except Exception as e:
             debug_print(f"Error during graceful shutdown: {e}")
 
+        # Close the input stream BEFORE touching the response task. This signals
+        # end-of-input to Bedrock, which closes the output stream in turn — so the
+        # response task's parked receive() ends naturally (StopAsyncIteration) and
+        # the `while self.is_active` loop exits on its own. Cancelling a parked
+        # receive() instead races with awscrt's in-flight body delivery, producing
+        # the harmless-but-noisy `InvalidStateError: CANCELLED` on every session end.
         if self.stream_response:
             try:
                 await self.stream_response.input_stream.close()
             except Exception:
                 pass
+
+        # Let the response task drain now that the output stream is closing.
+        if self.response_task and not self.response_task.done():
+            try:
+                await asyncio.wait_for(asyncio.shield(self.response_task), timeout=2.0)
+            except asyncio.TimeoutError:
+                # Last resort: it's still parked. Cancel and await so the
+                # CancelledError is retrieved here rather than surfacing later.
+                debug_print("Response task didn't close in time, cancelling...")
+                self.response_task.cancel()
+                try:
+                    await self.response_task
+                except (asyncio.CancelledError, Exception):
+                    pass
 
 
 # ==================== FastAPI Application ====================

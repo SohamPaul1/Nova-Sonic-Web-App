@@ -572,11 +572,19 @@
         </div>
     </div>
 
+    <!-- Neural VAD (Silero via @ricky0123/vad-web). ort MUST load before vad-web. -->
+    <script src="https://cdn.jsdelivr.net/npm/onnxruntime-web@1.22.0/dist/ort.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@ricky0123/vad-web@0.0.30/dist/bundle.min.js"></script>
     <script>
         // ==================== Configuration ====================
         const INPUT_SAMPLE_RATE = 16000;
         const OUTPUT_SAMPLE_RATE = 24000;
         const BUFFER_SIZE = 2048;
+
+        // CDN asset roots for the neural VAD (must match the <script> versions above,
+        // and each must end with a trailing slash).
+        const ORT_WASM_BASE = 'https://cdn.jsdelivr.net/npm/onnxruntime-web@1.22.0/dist/';
+        const VAD_ASSET_BASE = 'https://cdn.jsdelivr.net/npm/@ricky0123/vad-web@0.0.30/dist/';
 
         // ==================== State ====================
         let ws = null;
@@ -591,6 +599,19 @@
         let activeSources = [];
         let currentUserMessage = null;
         let currentAssistantMessage = null;
+
+        // ---- Client-side barge-in (neural VAD) ----
+        let micVAD = null;              // @ricky0123/vad-web MicVAD instance
+        let vadReady = false;           // true once the model + worklet have loaded
+        // When the local VAD fires we stop playback instantly, but the server keeps
+        // streaming the current turn's audio for a moment (until Bedrock's own VAD
+        // catches up). suppressAudioUntil ignores those in-flight chunks so they
+        // don't resume playback after we've cut it. The authoritative server
+        // 'barge_in' clears the suppression; the timeout is a safety release in case
+        // the user's speech was too short for Bedrock to register as an interruption.
+        let suppressIncomingAudio = false;
+        let suppressReleaseTimer = null;
+        const SUPPRESS_SAFETY_MS = 4000;
 
         // ==================== DOM Elements ====================
         const sessionButton = document.getElementById('session-button');
@@ -678,6 +699,10 @@
             playbackContext = new (window.AudioContext || window.webkitAudioContext)();
             nextPlayTime = 0;
             activeSources = [];
+
+            // Start the neural VAD for instant, human-speech-only barge-in.
+            // Non-blocking: if it fails to load we still fall back to the server's barge_in.
+            startVAD();
 
             // Connect WebSocket
             const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
@@ -769,6 +794,9 @@
         }
 
         function cleanupAudio() {
+            // Stop the neural VAD first so it releases the model/worklet cleanly.
+            stopVAD();
+
             // Stop capture
             if (scriptProcessor) {
                 scriptProcessor.onaudioprocess = null;
@@ -823,7 +851,12 @@
                     break;
 
                 case 'barge_in':
+                    // Authoritative server-side barge-in (Bedrock VAD). Stop any
+                    // remaining playback and lift suppression: stale chunks from the
+                    // interrupted turn queue *before* this message, so anything after
+                    // it belongs to the new response and should play.
                     clearPlayback();
+                    releaseAudioSuppression();
                     break;
             }
         }
@@ -831,6 +864,10 @@
         // ==================== Audio Playback ====================
         function playAudioChunk(base64Data) {
             if (!playbackContext) return;
+            // Drop audio from the turn the user just interrupted. The server keeps
+            // sending it briefly until Bedrock registers the barge-in; playing it
+            // would restart the very speech we just cut off.
+            if (suppressIncomingAudio) return;
 
             // Decode base64 → raw bytes
             const binaryString = atob(base64Data);
@@ -880,6 +917,87 @@
             }
             activeSources = [];
             nextPlayTime = 0;
+        }
+
+        // ==================== Client-Side Barge-In (Neural VAD) ====================
+        // Is the agent currently talking (audio scheduled or playing)?
+        function isPlaybackActive() {
+            if (activeSources.length > 0) return true;
+            return !!playbackContext && nextPlayTime > playbackContext.currentTime;
+        }
+
+        // Called by the VAD the moment it classifies incoming mic audio as human speech.
+        // Stops playback instantly and suppresses the current turn's in-flight audio
+        // until the server confirms the barge-in (or the safety timeout fires).
+        function onLocalSpeechStart() {
+            if (!isPlaybackActive()) return; // nothing to interrupt — user just talking normally
+            console.log('[VAD] user speech detected — cutting playback');
+            clearPlayback();
+            suppressIncomingAudio = true;
+            if (suppressReleaseTimer) clearTimeout(suppressReleaseTimer);
+            suppressReleaseTimer = setTimeout(() => {
+                suppressIncomingAudio = false;
+                suppressReleaseTimer = null;
+            }, SUPPRESS_SAFETY_MS);
+        }
+
+        // Clear audio suppression once the server's authoritative barge_in arrives,
+        // or when a fresh assistant turn legitimately begins.
+        function releaseAudioSuppression() {
+            suppressIncomingAudio = false;
+            if (suppressReleaseTimer) {
+                clearTimeout(suppressReleaseTimer);
+                suppressReleaseTimer = null;
+            }
+        }
+
+        async function startVAD() {
+            if (!mediaStream) return;
+            if (typeof vad === 'undefined' || !vad.MicVAD) {
+                console.warn('[VAD] vad-web not loaded — falling back to server barge-in only');
+                return;
+            }
+            try {
+                micVAD = await vad.MicVAD.new({
+                    model: 'v5',
+                    baseAssetPath: VAD_ASSET_BASE,
+                    onnxWASMBasePath: ORT_WASM_BASE,
+                    // Reuse the existing echo-cancelled capture stream. Because the
+                    // browser's echo cancellation removes the agent's own playback
+                    // before the VAD sees it, only a real human at the mic triggers
+                    // a barge-in — not the model's own voice bleeding through speakers.
+                    getStream: async () => mediaStream,
+                    // The app owns the mic stream's lifecycle (cleanupAudio stops the
+                    // tracks). Keep the VAD from stopping our shared stream on pause/destroy.
+                    pauseStream: async () => {},
+                    resumeStream: async () => mediaStream,
+                    // Slightly conservative thresholds: we want confident *human speech*,
+                    // not brief noise. Errs toward avoiding false interruptions.
+                    positiveSpeechThreshold: 0.5,
+                    negativeSpeechThreshold: 0.35,
+                    minSpeechMs: 120,       // require a short, real burst before firing
+                    redemptionMs: 600,
+                    preSpeechPadMs: 100,
+                    onSpeechStart: () => {
+                        onLocalSpeechStart();
+                    },
+                });
+                vadReady = true;
+                console.log('[VAD] neural VAD ready');
+            } catch (err) {
+                console.error('[VAD] failed to initialize, using server barge-in only:', err);
+                micVAD = null;
+                vadReady = false;
+            }
+        }
+
+        function stopVAD() {
+            if (micVAD) {
+                try { micVAD.destroy(); } catch (e) { /* ignore */ }
+                micVAD = null;
+            }
+            vadReady = false;
+            releaseAudioSuppression();
         }
 
 

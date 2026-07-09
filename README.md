@@ -9,7 +9,7 @@ This project converts the AWS sample console application into a modern web inter
 - **Real-time Voice Conversation**: Full duplex speech-to-speech communication with the Amazon Nova Sonic model.
 - **Modern Web Interface**: Premium dark-themed UI built with pure HTML/CSS/JS (no heavy frontend frameworks).
 - **Live Transcripts**: Displays the ongoing conversation text as it happens.
-- **Barge-in Support**: Interrupt the assistant at any time — playback stops immediately when you start speaking.
+- **Instant Barge-in (Neural VAD)**: Interrupt the assistant at any time. A client-side neural voice-activity detector (Silero, via [`@ricky0123/vad-web`](https://github.com/ricky0123/vad)) stops playback the moment *you* speak — with no server round-trip. It distinguishes human speech from background noise (fans, keyboard, music) and, because it reuses the browser's echo-cancelled mic stream, the assistant's own voice bleeding through the speakers won't trigger a false interruption. The server-side barge-in from Bedrock remains as an authoritative fallback.
 - **Tool Integration**: Includes sample tools (Date/Time and Order Tracking) that the model can invoke to fetch real-time data.
 - **Configurable Prompt**: The system prompt is loaded from a text file for easy customization without restarting the server.
 
@@ -26,6 +26,15 @@ Browser (Client)                                EC2 Server (FastAPI)            
 │  (Web Audio API)   │   24kHz PCM (Base64)     │                    │                        │                    │
 └────────────────────┘                          └────────────────────┘                        └────────────────────┘
 ```
+
+### Barge-in (interruption) flow
+
+Barge-in is handled on two independent paths:
+
+1. **Client-side (primary, instant)**: A neural VAD in the browser listens to the echo-cancelled microphone stream. When it classifies incoming audio as human speech, it stops playback locally in ~40–120 ms and suppresses any remaining audio from the interrupted turn (which the server keeps streaming until Bedrock catches up), so it can't resume playback.
+2. **Server-side (authoritative fallback)**: Bedrock's own VAD emits an `interrupted` event, which the server relays to the client as a `barge_in` message. This lifts the client's audio suppression and confirms the interruption — and covers the case where the VAD model fails to load (the app degrades gracefully to server-only barge-in).
+
+The VAD model (Silero) and its ONNX runtime are loaded from a CDN at runtime, so the first barge-in is only active after the model finishes downloading (look for `[VAD] neural VAD ready` in the browser console).
 
 ## Prerequisites
 
@@ -103,3 +112,4 @@ location / {
 - **Microphone Access Denied**: Ensure you are accessing the site via HTTPS. Browsers block microphone access on unencrypted HTTP connections (except for `localhost`).
 - **WebSocket Disconnected immediately**: Check your reverse proxy settings. The `Upgrade` and `Connection` headers must be passed to the backend.
 - **Task was destroyed but it is pending / InvalidStateError**: These are known warnings from the underlying `awscrt` networking library when a client disconnects abruptly. They do not affect the stability of the application.
+- **Barge-in feels delayed / doesn't stop on my voice**: Open the browser console and confirm you see `[VAD] neural VAD ready` after connecting. The Silero VAD model (~2 MB) plus its ONNX runtime are fetched from a CDN on first use, so instant barge-in only activates once that download completes. If you see `[VAD] failed to initialize...` (e.g. offline, CDN blocked, or a strict Content-Security-Policy), the app falls back to the slower server-side barge-in. To remove the CDN dependency, vendor the `onnxruntime-web` and `@ricky0123/vad-web` assets into `static/` and update the script/asset paths in `index.html`.
