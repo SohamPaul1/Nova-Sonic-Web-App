@@ -648,6 +648,24 @@ class BedrockStreamManager:
         self.is_active = False
         debug_print("Session ended")
         
+    async def send_initial_user_text(self, text):
+        """Send a user text message to the model at the start of a session."""
+        if not self.is_active:
+            debug_print("Stream is not active, cannot send text")
+            return
+            
+        debug_print(f"Sending initial user text: {text}")
+        
+        text_content_name = str(uuid.uuid4())
+        text_content_start = self.USER_TEXT_CONTENT_START_EVENT % (self.prompt_name, text_content_name)
+        await self.send_raw_event(text_content_start)
+        
+        text_content = self.TEXT_INPUT_EVENT % (self.prompt_name, text_content_name, json.dumps(text))
+        await self.send_raw_event(text_content)
+        
+        text_content_end = self.CONTENT_END_EVENT % (self.prompt_name, text_content_name)
+        await self.send_raw_event(text_content_end)
+
     async def send_user_text(self, text):
         """Send a user text message to the model in the middle of a session."""
         if not self.is_active:
@@ -923,6 +941,10 @@ async def websocket_endpoint(websocket: WebSocket):
         # Initialize the Bedrock bidirectional stream
         await stream_manager.initialize_stream()
         
+        # Force the agent to speak first by sending a fixed user message
+        initial_message = "[System Context: A new user just walked up to your demo booth at the event. Give a warm, gender-neutral welcome. Introduce yourself as Raj from Adamas Times, briefly mention you can help them explore subscription plans or look up their existing status, and ask how you can help them today. Keep it brief and engaging.]"
+        await stream_manager.send_initial_user_text(initial_message)
+
         # Start the audio content block (one per session)
         await stream_manager.send_audio_content_start_event()
         
