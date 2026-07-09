@@ -673,10 +673,14 @@
                 micButton.classList.add('muted');
                 micButton.classList.remove('active');
                 micLabel.textContent = 'Muted';
+                // Pause the VAD so it stops classifying live mic audio while muted —
+                // otherwise room noise/typing triggers a barge-in that cuts off the agent.
+                if (micVAD) { try { micVAD.pause(); } catch (e) { /* ignore */ } }
             } else {
                 micButton.classList.remove('muted');
                 micButton.classList.add('active');
                 micLabel.textContent = 'Listening';
+                if (micVAD) { try { micVAD.start(); } catch (e) { /* ignore */ } }
             }
         }
 
@@ -962,6 +966,7 @@
         // Stops playback instantly and suppresses the current turn's in-flight audio
         // until the server confirms the barge-in (or the safety timeout fires).
         function onLocalSpeechStart() {
+            if (isMuted) return; // muted → text-only mode; never let mic noise barge in
             if (!isPlaybackActive()) return; // nothing to interrupt — user just talking normally
             console.log('[VAD] user speech detected — cutting playback');
             clearPlayback();

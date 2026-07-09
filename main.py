@@ -571,12 +571,19 @@ class BedrockStreamManager:
                 if not audio_bytes:
                     debug_print("No audio bytes received")
                     continue
-                
+
+                # Use the content_name captured when this chunk was queued, not the
+                # current self.audio_content_name. During a text message send_user_text
+                # ends the audio block and swaps in a new content_name across several
+                # awaits; a chunk queued under the old block must still reference it, or
+                # Nova rejects a frame pointing at an ended/not-yet-started block.
+                chunk_content_name = data.get('content_name', self.audio_content_name)
+
                 # Base64 encode the audio data
                 blob = base64.b64encode(audio_bytes)
                 audio_event = self.AUDIO_EVENT_TEMPLATE % (
-                    self.prompt_name, 
-                    self.audio_content_name, 
+                    self.prompt_name,
+                    chunk_content_name,
                     blob.decode('utf-8')
                 )
                 
