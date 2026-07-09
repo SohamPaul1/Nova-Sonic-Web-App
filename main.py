@@ -244,7 +244,7 @@ class BedrockStreamManager:
 
         # --- Tool input schemas ---
 
-        check_user_status_schema = json.dumps({
+        check_user_status_schema = {
             "type": "object",
             "properties": {
                 "contact_number": {
@@ -253,15 +253,13 @@ class BedrockStreamManager:
                 }
             },
             "required": ["contact_number"]
-        })
+        }
 
-        get_subscription_plans_schema = json.dumps({
-            "type": "object",
-            "properties": {},
-            "required": []
-        })
+        get_subscription_plans_schema = {
+            "type": "object"
+        }
 
-        note_subscription_request_schema = json.dumps({
+        note_subscription_request_schema = {
             "type": "object",
             "properties": {
                 "user_name": {
@@ -286,9 +284,9 @@ class BedrockStreamManager:
                 }
             },
             "required": ["user_name", "phone_number", "pin_code", "intended_plan", "start_date"]
-        })
+        }
 
-        get_existing_subscriber_info_schema = json.dumps({
+        get_existing_subscriber_info_schema = {
             "type": "object",
             "properties": {
                 "contact_number": {
@@ -297,9 +295,9 @@ class BedrockStreamManager:
                 }
             },
             "required": ["contact_number"]
-        })
+        }
 
-        send_renewal_request_schema = json.dumps({
+        send_renewal_request_schema = {
             "type": "object",
             "properties": {
                 "contact_number": {
@@ -312,9 +310,9 @@ class BedrockStreamManager:
                 }
             },
             "required": ["contact_number", "req_plan"]
-        })
+        }
 
-        follow_up_user_schema = json.dumps({
+        follow_up_user_schema = {
             "type": "object",
             "properties": {
                 "user_name": {
@@ -331,7 +329,7 @@ class BedrockStreamManager:
                 }
             },
             "required": ["user_name", "phone_number", "message"]
-        })
+        }
 
         prompt_start_event = {
             "event": {
@@ -847,7 +845,8 @@ class BedrockStreamManager:
             tool_result = await self.tool_processor.process_tool_async(tool_name, tool_content)
             duration_ms = int((time.perf_counter() - start_time) * 1000)
             
-            logger.info(f"🔧 [TOOL RESULT READY] {tool_name} — {duration_ms}ms — result: {json.dumps(tool_result)}")
+            input_args = tool_content.get('input', {})
+            logger.info(f"🔧 [TOOL RESULT READY] {tool_name} — {duration_ms}ms — input: {json.dumps(input_args)} — result: {json.dumps(tool_result)}")
             
             # Send the result sequence
             await self.send_tool_start_event(content_name, tool_use_id)
