@@ -1071,6 +1071,16 @@
             return text.match(/\S+\s*/g) || [];
         }
 
+        // The agent writes phone numbers / PIN codes as hyphen-separated single
+        // digits ("9-8-0-0-0-1-1-1-0-5") so the TTS voices them one digit at a time
+        // (see prompt.txt Number Policy). For display we collapse those runs into a
+        // joined number ("9800011105"). This touches only the on-screen transcript;
+        // the spoken audio is a separate stream and is unaffected. The >=4 single-
+        // digit groups requirement leaves ISO dates like "2026-07-09" untouched.
+        function collapseSpokenDigits(text) {
+            return text.replace(/\d(?:-\d){3,}/g, m => m.replace(/-/g, ''));
+        }
+
         // Create the assistant bubble + segment on demand. Idempotent: whichever
         // signal arrives first (text or audio) creates the segment; later calls no-op.
         function ensureAssistantSegment() {
@@ -1092,6 +1102,7 @@
             assistantSegment = {
                 textEl,
                 buffer: '',
+                displayBuffer: '',
                 words: [],
                 revealedWords: 0,
                 audioAnchorTime: null,
@@ -1104,8 +1115,12 @@
         // Accumulate an assistant_text piece WITHOUT rendering it immediately.
         function bufferAssistantText(text) {
             ensureAssistantSegment();
+            // Accumulate the raw text, then derive the collapsed display form from the
+            // full buffer — collapsing the whole buffer (not the incoming piece) means
+            // a hyphenated digit run split across streamed chunks still joins correctly.
             assistantSegment.buffer += text;
-            assistantSegment.words = tokenizeWords(assistantSegment.buffer);
+            assistantSegment.displayBuffer = collapseSpokenDigits(assistantSegment.buffer);
+            assistantSegment.words = tokenizeWords(assistantSegment.displayBuffer);
             assistantSegment.lastTextArrivalMs = performance.now();
             assistantSegment.finished = false;   // more text for this turn → keep going
             startReveal();
@@ -1128,7 +1143,7 @@
         function flushSegment(seg) {
             if (!seg) return;
             seg.revealedWords = seg.words.length;
-            seg.textEl.textContent = seg.buffer;
+            seg.textEl.textContent = seg.displayBuffer;
             transcript.scrollTop = transcript.scrollHeight;
         }
 
