@@ -9,9 +9,6 @@ import base64
 import json
 import uuid
 import warnings
-import pytz
-import random
-import hashlib
 import datetime
 import time
 import inspect
@@ -53,7 +50,7 @@ def debug_print(message):
         functionName = inspect.stack()[1].function
         if  functionName == 'time_it' or functionName == 'time_it_async':
             functionName = inspect.stack()[2].function
-        print('{:%Y-%m-%d %H:%M:%S.%f}'.format(datetime.datetime.now())[:-3] + ' ' + functionName + ' ' + message)
+        logger.info('{:%Y-%m-%d %H:%M:%S.%f}'.format(datetime.datetime.now())[:-3] + ' ' + functionName + ' ' + message)
 
 def time_it(label, methodToRun):
     start_time = time.perf_counter()
@@ -68,6 +65,8 @@ async def time_it_async(label, methodToRun):
     end_time = time.perf_counter()
     debug_print(f"Execution time for {label}: {end_time - start_time:.4f} seconds")
     return result
+
+from tools import TOOL_REGISTRY
 
 class ToolProcessor:
     def __init__(self):
@@ -93,115 +92,16 @@ class ToolProcessor:
                 del self.tasks[task_id]
     
     async def _run_tool(self, tool_name, tool_content):
-        """Internal method to execute the tool logic"""
+        """Dispatch a tool call to the matching function in TOOL_REGISTRY."""
         debug_print(f"Processing tool: {tool_name}")
-        tool = tool_name.lower()
-        
-        if tool == "getdateandtimetool":
-            # Get current date in PST timezone
-            pst_timezone = pytz.timezone("America/Los_Angeles")
-            pst_date = datetime.datetime.now(pst_timezone)
-            
-            return {
-                "formattedTime": pst_date.strftime("%I:%M %p"),
-                "date": pst_date.strftime("%Y-%m-%d"),
-                "year": pst_date.year,
-                "month": pst_date.month,
-                "day": pst_date.day,
-                "dayOfWeek": pst_date.strftime("%A").upper(),
-                "timezone": "PST"
-            }
-        
-        elif tool == "trackordertool":
-            # Simulate a long-running operation
-            debug_print(f"TrackOrderTool starting operation that will take time...")
-            await asyncio.sleep(10)  # Non-blocking sleep to simulate processing time
-            
-            # Extract order ID from toolUseContent
-            content = tool_content.get("content", {})
-            content_data = json.loads(content)
-            order_id = content_data.get("orderId", "")
-            request_notifications = content_data.get("requestNotifications", False)
-            
-            # Convert order_id to string if it's an integer
-            if isinstance(order_id, int):
-                order_id = str(order_id)
-            # Validate order ID format
-            if not order_id or not isinstance(order_id, str):
-                return {
-                    "error": "Invalid order ID format",
-                    "orderStatus": "",
-                    "estimatedDelivery": "",
-                    "lastUpdate": ""
-                }
-            
-            # Create deterministic randomness based on order ID
-            # This ensures the same order ID always returns the same status
-            seed = int(hashlib.md5(order_id.encode(), usedforsecurity=False).hexdigest(), 16) % 10000
-            random.seed(seed)
-            
-            # Rest of the order tracking logic
-            statuses = [
-                "Order received", 
-                "Processing", 
-                "Preparing for shipment",
-                "Shipped",
-                "In transit", 
-                "Out for delivery",
-                "Delivered",
-                "Delayed"
-            ]
-            
-            weights = [10, 15, 15, 20, 20, 10, 5, 3]
-            status = random.choices(statuses, weights=weights, k=1)[0]
-            
-            # Generate delivery date logic
-            today = datetime.datetime.now()
-            if status == "Delivered":
-                delivery_days = -random.randint(0, 3)
-                estimated_delivery = (today + datetime.timedelta(days=delivery_days)).strftime("%Y-%m-%d")
-            elif status == "Out for delivery":
-                estimated_delivery = today.strftime("%Y-%m-%d")
-            else:
-                delivery_days = random.randint(1, 10)
-                estimated_delivery = (today + datetime.timedelta(days=delivery_days)).strftime("%Y-%m-%d")
+        tool_fn = TOOL_REGISTRY.get(tool_name.lower())
+        if not tool_fn:
+            return {"error": f"Unsupported tool: {tool_name}"}
 
-            # Handle notification request
-            notification_message = ""
-            if request_notifications and status != "Delivered":
-                notification_message = f"You will receive notifications for order {order_id}"
-
-            # Return tracking information
-            tracking_info = {
-                "orderStatus": status,
-                "orderNumber": order_id,
-                "notificationStatus": notification_message
-            }
-
-            # Add appropriate fields based on status
-            if status == "Delivered":
-                tracking_info["deliveredOn"] = estimated_delivery
-            elif status == "Out for delivery":
-                tracking_info["expectedDelivery"] = "Today"
-            else:
-                tracking_info["estimatedDelivery"] = estimated_delivery
-
-            # Add location information based on status
-            if status == "In transit":
-                tracking_info["currentLocation"] = "Distribution Center"
-            elif status == "Delivered":
-                tracking_info["deliveryLocation"] = "Front Door"
-                
-            # Add additional info for delayed status
-            if status == "Delayed":
-                tracking_info["additionalInfo"] = "Weather delays possible"
-                
-            debug_print(f"TrackOrderTool completed successfully")
-            return tracking_info
-        else:
-            return {
-                "error": f"Unsupported tool: {tool_name}"
-            }
+        # Parse input args from the tool content
+        content = tool_content.get("content", "{}")
+        args = json.loads(content) if isinstance(content, str) else content
+        return await tool_fn(**args)
 
 class BedrockStreamManager:
     """Manages bidirectional streaming with AWS Bedrock using asyncio"""
@@ -332,30 +232,95 @@ class BedrockStreamManager:
     }'''
     
     def start_prompt(self):
-        """Create a promptStart event"""
-        get_default_tool_schema = json.dumps({
+        """Create a promptStart event with newspaper helpdesk tool definitions."""
+
+        # --- Tool input schemas ---
+
+        check_user_status_schema = json.dumps({
+            "type": "object",
+            "properties": {
+                "contact_number": {
+                    "type": "string",
+                    "description": "The 10-digit phone number to look up"
+                }
+            },
+            "required": ["contact_number"]
+        })
+
+        get_subscription_plans_schema = json.dumps({
             "type": "object",
             "properties": {},
             "required": []
         })
 
-        get_order_tracking_schema = json.dumps({
+        note_subscription_request_schema = json.dumps({
             "type": "object",
             "properties": {
-                "orderId": {
+                "user_name": {
                     "type": "string",
-                    "description": "The order number or ID to track"
+                    "description": "Full name of the user"
                 },
-                "requestNotifications": {
-                    "type": "boolean",
-                    "description": "Whether to set up notifications for this order",
-                    "default": False
+                "phone_number": {
+                    "type": "string",
+                    "description": "10-digit phone number of the user"
+                },
+                "intended_plan": {
+                    "type": "string",
+                    "description": "The subscription plan name (monthly, quarterly, half yearly, or yearly)"
+                },
+                "start_date": {
+                    "type": "string",
+                    "description": "The start date in YYYY-MM-DD format. Must be today or a future date."
                 }
             },
-            "required": ["orderId"]
+            "required": ["user_name", "phone_number", "intended_plan", "start_date"]
         })
 
-        
+        get_existing_subscriber_info_schema = json.dumps({
+            "type": "object",
+            "properties": {
+                "contact_number": {
+                    "type": "string",
+                    "description": "The 10-digit phone number of the existing subscriber"
+                }
+            },
+            "required": ["contact_number"]
+        })
+
+        send_renewal_request_schema = json.dumps({
+            "type": "object",
+            "properties": {
+                "contact_number": {
+                    "type": "string",
+                    "description": "The 10-digit phone number of the existing subscriber"
+                },
+                "req_plan": {
+                    "type": "string",
+                    "description": "The renewal plan name (monthly, quarterly, half yearly, or yearly)"
+                }
+            },
+            "required": ["contact_number", "req_plan"]
+        })
+
+        follow_up_user_schema = json.dumps({
+            "type": "object",
+            "properties": {
+                "user_name": {
+                    "type": "string",
+                    "description": "Full name of the user to follow up with"
+                },
+                "phone_number": {
+                    "type": "string",
+                    "description": "10-digit phone number of the user"
+                },
+                "message": {
+                    "type": "string",
+                    "description": "The follow-up message or status update from the AI agent"
+                }
+            },
+            "required": ["user_name", "phone_number", "message"]
+        })
+
         prompt_start_event = {
             "event": {
                 "promptStart": {
@@ -379,19 +344,55 @@ class BedrockStreamManager:
                         "tools": [
                             {
                                 "toolSpec": {
-                                    "name": "getDateAndTimeTool",
-                                    "description": "get information about the current date and time",
+                                    "name": "checkUserStatus",
+                                    "description": "Check whether a phone number belongs to a valid user. Searches across existing_user_details, new_customers, and plan_extension tables and returns the user's current status.",
                                     "inputSchema": {
-                                        "json": get_default_tool_schema
+                                        "json": check_user_status_schema
                                     }
                                 }
                             },
                             {
                                 "toolSpec": {
-                                    "name": "trackOrderTool",
-                                    "description": "Retrieves real-time order tracking information and detailed status updates for customer orders by order ID. Provides estimated delivery dates. Use this tool when customers ask about their order status or delivery timeline.",
+                                    "name": "getSubscriptionPlans",
+                                    "description": "Retrieve the list of valid newspaper subscription plans and their pricing. No input parameters required. Call this when users ask about subscription options or pricing.",
                                     "inputSchema": {
-                                    "json": get_order_tracking_schema
+                                        "json": get_subscription_plans_schema
+                                    }
+                                }
+                            },
+                            {
+                                "toolSpec": {
+                                    "name": "noteSubscriptionRequest",
+                                    "description": "Record a new subscription request. Updates the user's plan and start date in the new_user_details table. The intended_plan must be one of the valid plans and start_date must be today or a future date.",
+                                    "inputSchema": {
+                                        "json": note_subscription_request_schema
+                                    }
+                                }
+                            },
+                            {
+                                "toolSpec": {
+                                    "name": "getExistingSubscriberInfo",
+                                    "description": "Retrieve details of an existing active subscriber using their contact number.",
+                                    "inputSchema": {
+                                        "json": get_existing_subscriber_info_schema
+                                    }
+                                }
+                            },
+                            {
+                                "toolSpec": {
+                                    "name": "sendRenewalRequest",
+                                    "description": "Create a renewal or extension request for an existing subscriber. Verifies the subscriber exists, then creates a renewal entry in the plan_extension table with status pending.",
+                                    "inputSchema": {
+                                        "json": send_renewal_request_schema
+                                    }
+                                }
+                            },
+                            {
+                                "toolSpec": {
+                                    "name": "followUpUser",
+                                    "description": "Update the follow-up status of a user. Updates the user_status field in the new_user_details table with the follow-up message from the AI agent.",
+                                    "inputSchema": {
+                                        "json": follow_up_user_schema
                                     }
                                 }
                             }
@@ -400,7 +401,7 @@ class BedrockStreamManager:
                 }
             }
         }
-        
+
         return json.dumps(prompt_start_event)
     
     def tool_result_event(self, content_name, content, role):
@@ -510,7 +511,7 @@ class BedrockStreamManager:
             return self
         except Exception as e:
             self.is_active = False
-            print(f"Failed to initialize stream: {str(e)}")
+            logger.error(f"Failed to initialize stream: {str(e)}")
             raise
     
     async def send_raw_event(self, event_json):
@@ -753,13 +754,13 @@ class BedrockStreamManager:
                    # Handle ValidationException properly
                     if "ValidationException" in str(e):
                         error_message = str(e)
-                        print(f"Validation error: {error_message}")
+                        logger.error(f"Validation error: {error_message}")
                     else:
-                        print(f"Error receiving response: {e}")
+                        logger.error(f"Error receiving response: {e}")
                     break
                     
         except Exception as e:
-            print(f"Response processing error: {e}")
+            logger.error(f"Response processing error: {e}")
         finally:
             self.is_active = False
             try:
@@ -875,6 +876,12 @@ class BedrockStreamManager:
 
 app = FastAPI(title="Nova Sonic Web App")
 
+@app.on_event("shutdown")
+async def shutdown_event():
+    """Close the database connection when the app shuts down."""
+    from db import close_db
+    close_db()
+
 
 @app.get("/")
 async def get_index():
@@ -963,7 +970,7 @@ async def websocket_endpoint(websocket: WebSocket):
                 pass
     
     except Exception as e:
-        print(f"WebSocket error: {e}")
+        logger.error(f"WebSocket error: {e}")
         try:
             if websocket.client_state == WebSocketState.CONNECTED:
                 await websocket.send_json({"type": "status", "message": f"error: {str(e)}"})
@@ -990,5 +997,5 @@ if __name__ == "__main__":
     host = os.environ.get('HOST', '0.0.0.0')
     port = int(os.environ.get('PORT', '8009'))
     
-    print(f"Starting Nova Sonic Web App on http://{host}:{port}")
+    logger.info(f"Starting Nova Sonic Web App on http://{host}:{port}")
     uvicorn.run(app, host=host, port=port)
