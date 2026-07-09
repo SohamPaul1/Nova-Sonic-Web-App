@@ -16,14 +16,22 @@ import logging
 
 # Set up comprehensive logger
 logger = logging.getLogger("nova_sonic")
-logger.setLevel(logging.INFO)
+logger.setLevel(logging.DEBUG)
+
+formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+
 file_handler = logging.FileHandler("Agent.log")
-formatter = logging.Formatter('%(message)s')
 file_handler.setFormatter(formatter)
 logger.addHandler(file_handler)
 
+stream_handler = logging.StreamHandler()
+stream_handler.setFormatter(formatter)
+logger.addHandler(stream_handler)
+
+from zoneinfo import ZoneInfo
+
 def get_current_time_str():
-    return datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")[:-3]
+    return datetime.datetime.now(ZoneInfo("Asia/Kolkata")).strftime("%Y-%m-%d %H:%M:%S.%f")[:-3]
 
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.responses import HTMLResponse
@@ -42,7 +50,7 @@ INPUT_SAMPLE_RATE = 16000
 OUTPUT_SAMPLE_RATE = 24000
 
 # Debug mode flag
-DEBUG = False
+DEBUG = True
 
 def debug_print(message):
     """Print only if debug mode is enabled"""
@@ -169,7 +177,7 @@ class BedrockStreamManager:
             "textInput": {
             "promptName": "%s",
             "contentName": "%s",
-            "content": "%s"
+            "content": %s
             }
         }
     }'''
@@ -438,6 +446,7 @@ class BedrockStreamManager:
         self.output_queue = asyncio.Queue()
         
         self.response_task = None
+        self.audio_task = None
         self.stream_response = None
         self.is_active = False
         self.barge_in = False
@@ -489,10 +498,13 @@ class BedrockStreamManager:
                 default_system_prompt = "You are a friend. The user and you will engage in a spoken dialog exchanging the transcripts of a natural real-time conversation."
                 debug_print("prompt.txt not found, using default system prompt")
             
+            default_system_prompt = f"Current date and time is : {get_current_time_str()}\n\n" + default_system_prompt
+            debug_print(f"System prompt: {default_system_prompt}")
+            
             # Send initialization events
             prompt_event = self.start_prompt()
             text_content_start = self.TEXT_CONTENT_START_EVENT % (self.prompt_name, self.content_name, "SYSTEM")
-            text_content = self.TEXT_INPUT_EVENT % (self.prompt_name, self.content_name, default_system_prompt)
+            text_content = self.TEXT_INPUT_EVENT % (self.prompt_name, self.content_name, json.dumps(default_system_prompt))
             text_content_end = self.CONTENT_END_EVENT % (self.prompt_name, self.content_name)
             
             init_events = [self.START_SESSION_EVENT, prompt_event, text_content_start, text_content, text_content_end]
@@ -506,7 +518,7 @@ class BedrockStreamManager:
             self.response_task = asyncio.create_task(self._process_responses())
             
             # Start processing audio input
-            asyncio.create_task(self._process_audio_input())
+            self.audio_task = asyncio.create_task(self._process_audio_input())
             
             # Wait a bit to ensure everything is set up
             await asyncio.sleep(0.1)
@@ -653,7 +665,7 @@ class BedrockStreamManager:
         await self.send_raw_event(text_content_start)
         
         # 3. Send text payload
-        text_content = self.TEXT_INPUT_EVENT % (self.prompt_name, text_content_name, text)
+        text_content = self.TEXT_INPUT_EVENT % (self.prompt_name, text_content_name, json.dumps(text))
         await self.send_raw_event(text_content)
         
         # 4. End text block
@@ -836,6 +848,9 @@ class BedrockStreamManager:
             return
             
         self.is_active = False
+        
+        if self.audio_task and not self.audio_task.done():
+            self.audio_task.cancel()
         
         # Cancel any pending tool tasks
         for task in self.pending_tool_tasks.values():
