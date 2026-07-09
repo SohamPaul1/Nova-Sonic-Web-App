@@ -1,0 +1,22 @@
+{
+  "main.py": {
+    "mtime": 1783578614.0521364,
+    "ast_hash": "1a32d6c84fc9b4aa225374f47b63b6ff",
+    "semantic_hash": "1a32d6c84fc9b4aa225374f47b63b6ff"
+  },
+  "prompt.txt": {
+    "mtime": 1783578614.0524209,
+    "ast_hash": "3c41d466b23cd3eb99d6c3c72708c112",
+    "semantic_hash": "3c41d466b23cd3eb99d6c3c72708c112"
+  },
+  "requirements.txt": {
+    "mtime": 1783578614.0526016,
+    "ast_hash": "d455c0510f27f208cec57a904fa36147",
+    "semantic_hash": "d455c0510f27f208cec57a904fa36147"
+  },
+  "static/index.html": {
+    "mtime": 1783581148.561417,
+    "ast_hash": "de00303920d66d8afc253e4ccbf216eb",
+    "semantic_hash": "de00303920d66d8afc253e4ccbf216eb"
+  }
+}

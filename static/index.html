@@ -702,15 +702,20 @@
                 // Start sending audio chunks
                 scriptProcessor.onaudioprocess = (e) => {
                     if (!isStreaming || !ws || ws.readyState !== WebSocket.OPEN) return;
-                    if (isMuted) return;
 
                     const float32Data = e.inputBuffer.getChannelData(0);
 
                     // Downsample from native rate to 16kHz
                     const downsampled = downsample(float32Data, nativeSampleRate, INPUT_SAMPLE_RATE);
 
-                    // Convert Float32 → Int16 PCM
-                    const int16Data = float32ToInt16(downsampled);
+                    // Convert Float32 → Int16 PCM.
+                    // When muted we still stream *silence* rather than nothing: Nova Sonic is
+                    // an input-driven stream that detects end-of-turn from incoming audio going
+                    // quiet. If we stop sending entirely, a text message sent while muted never
+                    // gets a response until audio resumes. Silent frames keep the stream warm.
+                    const int16Data = isMuted
+                        ? new Int16Array(downsampled.length) // zero-filled = silence
+                        : float32ToInt16(downsampled);
 
                     // Send raw PCM bytes
                     ws.send(int16Data.buffer);
