@@ -4,3 +4,4 @@ Agent.log
 test*
 *.md
 __pycache__/
+dump-newspaper-helpdesk-202607091519.sql

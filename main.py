@@ -264,6 +264,10 @@ class BedrockStreamManager:
                     "type": "string",
                     "description": "10-digit phone number of the user"
                 },
+                "pin_code": {
+                    "type": "string",
+                    "description": "The 6-digit area PIN code of the user"
+                },
                 "intended_plan": {
                     "type": "string",
                     "description": "The subscription plan name (monthly, quarterly, half yearly, or yearly)"
@@ -273,7 +277,7 @@ class BedrockStreamManager:
                     "description": "The start date in YYYY-MM-DD format. Must be today or a future date."
                 }
             },
-            "required": ["user_name", "phone_number", "intended_plan", "start_date"]
+            "required": ["user_name", "phone_number", "pin_code", "intended_plan", "start_date"]
         })
 
         get_existing_subscriber_info_schema = json.dumps({
@@ -363,7 +367,7 @@ class BedrockStreamManager:
                             {
                                 "toolSpec": {
                                     "name": "noteSubscriptionRequest",
-                                    "description": "Record a new subscription request. Updates the user's plan and start date in the new_user_details table. The intended_plan must be one of the valid plans and start_date must be today or a future date.",
+                                    "description": "Record a new subscription request for a new user in the new_user_details table (inserts a new row, or updates the existing one if this phone number was already recorded). Requires user_name, phone_number, pin_code (6-digit area PIN), intended_plan, and start_date. The intended_plan must be one of the valid plans and start_date must be today or a future date.",
                                     "inputSchema": {
                                         "json": note_subscription_request_schema
                                     }

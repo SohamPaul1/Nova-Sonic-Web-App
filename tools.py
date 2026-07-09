@@ -14,7 +14,7 @@ from datetime import datetime
 from zoneinfo import ZoneInfo
 from dateutil.relativedelta import relativedelta
 
-from db import fetch_one, fetch_all, execute, insert_returning, conn
+from db import fetch_one, execute, insert_returning
 
 logger = logging.getLogger("nova_sonic")
 
@@ -114,22 +114,37 @@ async def get_subscription_plans() -> dict:
 async def note_subscription_request(
     user_name: str,
     phone_number: str,
+    pin_code: str,
     intended_plan: str,
     start_date: str,
 ) -> dict:
     """
-    Update the plan and start date for a user in the new_user_details table.
+    Record a new subscription request in new_user_details.
+
+    Every web visitor is treated as a new user, so if a row for this phone
+    number already exists we update it; otherwise we insert a fresh row. This
+    upsert avoids the 404 the old UPDATE-only version returned for genuinely
+    new users.
+
+    We collect the user's PIN code (not a full address) and store it in the
+    NOT NULL `address` column, which is the only location the schema provides.
     """
-    if not all([user_name, phone_number, intended_plan, start_date]):
+    if not all([user_name, phone_number, pin_code, intended_plan, start_date]):
         return {
             "statusCode": 400,
-            "message": "Missing required fields. Please provide user_name, phone_number, intended_plan, and start_date.",
+            "message": "Missing required fields. Please provide user_name, phone_number, pin_code, intended_plan, and start_date.",
         }
 
     if len(phone_number) != 10 or not phone_number.isdigit():
         return {
             "statusCode": 400,
             "message": "Invalid phone number format. Please provide a valid 10-digit phone number.",
+        }
+
+    if len(pin_code) != 6 or not pin_code.isdigit():
+        return {
+            "statusCode": 400,
+            "message": "Invalid PIN code format. Please provide a valid 6-digit PIN code.",
         }
 
     try:
@@ -159,43 +174,44 @@ async def note_subscription_request(
 
         existing_user = await asyncio.to_thread(
             fetch_one,
-            """
-            SELECT user_name, phone_number
-            FROM new_user_details
-            WHERE user_name = %s AND phone_number = %s
-            """,
-            (user_name, phone_number),
+            "SELECT phone_number FROM new_user_details WHERE phone_number = %s",
+            (phone_number,),
         )
 
-        if not existing_user:
-            return {
-                "statusCode": 404,
-                "message": "User not found in new_user_details.",
-            }
-
-        result = await asyncio.to_thread(
-            insert_returning,
-            """
-            UPDATE new_user_details
-            SET plan = %s,
-                start_date = %s
-            WHERE user_name = %s
-              AND phone_number = %s
-            RETURNING user_name, phone_number, plan, start_date;
-            """,
-            (plan, start_dt, user_name, phone_number),
-        )
-        conn.commit()
+        if existing_user:
+            result = await asyncio.to_thread(
+                insert_returning,
+                """
+                UPDATE new_user_details
+                SET user_name = %s,
+                    address = %s,
+                    plan = %s,
+                    start_date = %s
+                WHERE phone_number = %s
+                RETURNING user_name, phone_number, plan, start_date;
+                """,
+                (user_name, pin_code, plan, start_dt, phone_number),
+            )
+        else:
+            result = await asyncio.to_thread(
+                insert_returning,
+                """
+                INSERT INTO new_user_details
+                    (user_name, phone_number, address, plan, start_date)
+                VALUES (%s, %s, %s, %s, %s)
+                RETURNING user_name, phone_number, plan, start_date;
+                """,
+                (user_name, phone_number, pin_code, plan, start_dt),
+            )
 
         return {
             "statusCode": 200,
-            "message": "Subscription request updated successfully in new_user_details.",
+            "message": "Subscription request recorded successfully.",
             "data": result,
         }
 
     except Exception as e:
-        conn.rollback()
-        logger.exception("Error updating subscription request")
+        logger.exception("Error recording subscription request")
         return {"statusCode": 500, "error": str(e)}
 
 
@@ -271,9 +287,8 @@ async def send_renewal_request(contact_number: str, req_plan: str) -> dict:
             VALUES (%s, %s, %s, %s)
             RETURNING id, status, extended_date;
             """,
-            (contact_number, address, req_plan, extended_date),
+            (contact_number, address, plan, extended_date),
         )
-        conn.commit()
 
         return {
             "statusCode": 200,
@@ -282,7 +297,6 @@ async def send_renewal_request(contact_number: str, req_plan: str) -> dict:
         }
 
     except Exception as e:
-        conn.rollback()
         logger.exception("Error creating renewal request")
         return {"statusCode": 500, "error": str(e)}
 
@@ -330,7 +344,6 @@ async def follow_up_user(
         }
 
     except Exception as e:
-        conn.rollback()
         logger.exception("Error updating user follow-up status")
         return {"statusCode": 500, "error": str(e)}
 
