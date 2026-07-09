@@ -244,7 +244,7 @@ class BedrockStreamManager:
 
         # --- Tool input schemas ---
 
-        check_user_status_schema = {
+        check_user_status_schema = json.dumps({
             "type": "object",
             "properties": {
                 "contact_number": {
@@ -253,13 +253,15 @@ class BedrockStreamManager:
                 }
             },
             "required": ["contact_number"]
-        }
+        })
 
-        get_subscription_plans_schema = {
-            "type": "object"
-        }
+        get_subscription_plans_schema = json.dumps({
+            "type": "object",
+            "properties": {},
+            "required": []
+        })
 
-        note_subscription_request_schema = {
+        note_subscription_request_schema = json.dumps({
             "type": "object",
             "properties": {
                 "user_name": {
@@ -284,9 +286,9 @@ class BedrockStreamManager:
                 }
             },
             "required": ["user_name", "phone_number", "pin_code", "intended_plan", "start_date"]
-        }
+        })
 
-        get_existing_subscriber_info_schema = {
+        get_existing_subscriber_info_schema = json.dumps({
             "type": "object",
             "properties": {
                 "contact_number": {
@@ -295,9 +297,9 @@ class BedrockStreamManager:
                 }
             },
             "required": ["contact_number"]
-        }
+        })
 
-        send_renewal_request_schema = {
+        send_renewal_request_schema = json.dumps({
             "type": "object",
             "properties": {
                 "contact_number": {
@@ -310,9 +312,9 @@ class BedrockStreamManager:
                 }
             },
             "required": ["contact_number", "req_plan"]
-        }
+        })
 
-        follow_up_user_schema = {
+        follow_up_user_schema = json.dumps({
             "type": "object",
             "properties": {
                 "user_name": {
@@ -329,7 +331,7 @@ class BedrockStreamManager:
                 }
             },
             "required": ["user_name", "phone_number", "message"]
-        }
+        })
 
         prompt_start_event = {
             "event": {
