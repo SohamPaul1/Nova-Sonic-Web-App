@@ -1,8 +1,8 @@
 {
   "main.py": {
-    "mtime": 1783578614.0521364,
-    "ast_hash": "1a32d6c84fc9b4aa225374f47b63b6ff",
-    "semantic_hash": "1a32d6c84fc9b4aa225374f47b63b6ff"
+    "mtime": 1783584929.1351123,
+    "ast_hash": "690ee4f07745c81c606ef987528727a2",
+    "semantic_hash": "690ee4f07745c81c606ef987528727a2"
   },
   "prompt.txt": {
     "mtime": 1783578614.0524209,
@@ -15,8 +15,13 @@
     "semantic_hash": "d455c0510f27f208cec57a904fa36147"
   },
   "static/index.html": {
-    "mtime": 1783581148.561417,
-    "ast_hash": "de00303920d66d8afc253e4ccbf216eb",
-    "semantic_hash": "de00303920d66d8afc253e4ccbf216eb"
+    "mtime": 1783587305.5784721,
+    "ast_hash": "3f2cee8da7fec283af2d9b5d452f6f81",
+    "semantic_hash": "3f2cee8da7fec283af2d9b5d452f6f81"
+  },
+  ".claude/settings.local.json": {
+    "mtime": 1783581613.734273,
+    "ast_hash": "0fcc8665e572ab7be3dc76db735a1775",
+    "semantic_hash": "0fcc8665e572ab7be3dc76db735a1775"
   }
 }

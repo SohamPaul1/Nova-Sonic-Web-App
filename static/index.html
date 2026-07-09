@@ -586,6 +586,11 @@
         const ORT_WASM_BASE = 'https://cdn.jsdelivr.net/npm/onnxruntime-web@1.22.0/dist/';
         const VAD_ASSET_BASE = 'https://cdn.jsdelivr.net/npm/@ricky0123/vad-web@0.0.30/dist/';
 
+        // Synced transcript reveal: if buffered assistant text never gets audio,
+        // drip it in at a gentle reading speed instead of leaving it hidden.
+        const NO_AUDIO_FALLBACK_MS = 1200;  // wait this long for audio before dripping
+        const FALLBACK_WPS = 3.0;           // fallback reveal speed, words/sec (~180 wpm)
+
         // ==================== State ====================
         let ws = null;
         let isStreaming = false;
@@ -599,6 +604,13 @@
         let activeSources = [];
         let currentUserMessage = null;
         let currentAssistantMessage = null;
+
+        // ---- Synced assistant transcript reveal ----
+        // Assistant text arrives far faster than the audio plays. Instead of rendering
+        // it immediately, we buffer it in a "segment" and reveal words in step with the
+        // audio playback clock (see revealTick). null when no assistant turn is active.
+        let assistantSegment = null;
+        let revealRafId = null;         // requestAnimationFrame handle, or null when parked
 
         // ---- Client-side barge-in (neural VAD) ----
         let micVAD = null;              // @ricky0123/vad-web MicVAD instance
@@ -635,8 +647,12 @@
             const text = textInput.value.trim();
             if (text) {
                 textInput.value = '';
-                addTranscriptMessage('user', text + '\n');
                 clearPlayback(); // Barge-in
+                // Freeze any in-progress assistant reveal at the last spoken word BEFORE
+                // adding the user message (whose 'user' branch would otherwise flush the
+                // full assistant text). Typing mid-speech is a barge-in → freeze, not flush.
+                endAssistantSegment({ flush: false });
+                addTranscriptMessage('user', text + '\n');
                 ws.send(JSON.stringify({ type: 'user_text_input', text: text }));
             }
         });
@@ -788,6 +804,10 @@
             cleanupAudio();
             updateUI('disconnected');
 
+            // Stop the reveal loop and finalize the transcript. Flush whatever was
+            // buffered so the last message isn't left partially hidden on session end.
+            endAssistantSegment({ flush: true });
+
             // Reset message tracking
             currentUserMessage = null;
             currentAssistantMessage = null;
@@ -847,7 +867,8 @@
                     break;
 
                 case 'assistant_text':
-                    addTranscriptMessage('assistant', msg.text);
+                    // Buffer (don't render yet) — revealed word-by-word in sync with audio.
+                    bufferAssistantText(msg.text);
                     break;
 
                 case 'barge_in':
@@ -857,6 +878,9 @@
                     // it belongs to the new response and should play.
                     clearPlayback();
                     releaseAudioSuppression();
+                    // Freeze the transcript at the last spoken word — the unspoken
+                    // remainder was never heard, so don't reveal it.
+                    endAssistantSegment({ flush: false });
                     break;
             }
         }
@@ -900,6 +924,14 @@
                 nextPlayTime = currentTime + 0.02; // tiny buffer to avoid clicks
             }
 
+            // Anchor the transcript-reveal clock to the first real (non-suppressed)
+            // chunk of this turn. nextPlayTime here is this chunk's scheduled start;
+            // audio may arrive before any text, so ensure the segment exists first.
+            ensureAssistantSegment();
+            if (assistantSegment.audioAnchorTime === null) {
+                assistantSegment.audioAnchorTime = nextPlayTime;
+            }
+
             source.start(nextPlayTime);
             nextPlayTime += audioBuffer.duration;
 
@@ -933,6 +965,8 @@
             if (!isPlaybackActive()) return; // nothing to interrupt — user just talking normally
             console.log('[VAD] user speech detected — cutting playback');
             clearPlayback();
+            // Freeze the transcript at the last spoken word — the rest was never heard.
+            endAssistantSegment({ flush: false });
             suppressIncomingAudio = true;
             if (suppressReleaseTimer) clearTimeout(suppressReleaseTimer);
             suppressReleaseTimer = setTimeout(() => {
@@ -1023,6 +1057,132 @@
             return int16Array;
         }
 
+        // ==================== Synced Transcript Reveal ====================
+        // Reveals buffered assistant text word-by-word, locked to the audio playback
+        // clock, so words appear in step with what's being spoken instead of all at
+        // once (text arrives ~3x faster than the audio plays).
+        function clamp01(x) {
+            return x < 0 ? 0 : (x > 1 ? 1 : x);
+        }
+
+        // Split into tokens that each keep their trailing whitespace, so
+        // words.slice(0, n).join('') reconstructs the original text exactly.
+        function tokenizeWords(text) {
+            return text.match(/\S+\s*/g) || [];
+        }
+
+        // Create the assistant bubble + segment on demand. Idempotent: whichever
+        // signal arrives first (text or audio) creates the segment; later calls no-op.
+        function ensureAssistantSegment() {
+            if (assistantSegment) return;
+
+            if (transcriptEmpty) transcriptEmpty.style.display = 'none';
+            // A new assistant turn ends any in-progress user message grouping.
+            currentUserMessage = null;
+
+            const msg = document.createElement('div');
+            msg.className = 'message assistant';
+            msg.innerHTML = '<span class="message-role">Nova</span><span class="message-text"></span>';
+            transcript.appendChild(msg);
+            const textEl = msg.querySelector('.message-text');
+            // Keep currentAssistantMessage pointed at the same span so existing
+            // role-reset semantics stay coherent.
+            currentAssistantMessage = textEl;
+
+            assistantSegment = {
+                textEl,
+                buffer: '',
+                words: [],
+                revealedWords: 0,
+                audioAnchorTime: null,
+                lastTextArrivalMs: performance.now(),
+                finished: false,
+            };
+            startReveal();
+        }
+
+        // Accumulate an assistant_text piece WITHOUT rendering it immediately.
+        function bufferAssistantText(text) {
+            ensureAssistantSegment();
+            assistantSegment.buffer += text;
+            assistantSegment.words = tokenizeWords(assistantSegment.buffer);
+            assistantSegment.lastTextArrivalMs = performance.now();
+            assistantSegment.finished = false;   // more text for this turn → keep going
+            startReveal();
+        }
+
+        function startReveal() {
+            if (revealRafId === null) {
+                revealRafId = requestAnimationFrame(revealTick);
+            }
+        }
+
+        function stopReveal() {
+            if (revealRafId !== null) {
+                cancelAnimationFrame(revealRafId);
+                revealRafId = null;
+            }
+        }
+
+        // Reveal the whole buffer at once (natural completion or forced flush).
+        function flushSegment(seg) {
+            if (!seg) return;
+            seg.revealedWords = seg.words.length;
+            seg.textEl.textContent = seg.buffer;
+            transcript.scrollTop = transcript.scrollHeight;
+        }
+
+        // End the active assistant segment. flush:true reveals everything (turn was
+        // fully heard); flush:false freezes at the last spoken word (barge-in).
+        function endAssistantSegment({ flush }) {
+            const seg = assistantSegment;
+            if (!seg) return;
+            if (flush) flushSegment(seg);
+            stopReveal();
+            assistantSegment = null;
+        }
+
+        // rAF loop: map audio playback progress → revealed word count.
+        function revealTick() {
+            revealRafId = null;
+            const seg = assistantSegment;
+            if (!seg) return;                                   // ended → stop
+            if (!playbackContext) { flushSegment(seg); return; } // playback gone → show all
+
+            let target = seg.revealedWords;
+
+            if (seg.audioAnchorTime !== null) {
+                // Locked to the audio clock. den grows as more audio schedules, which
+                // holds the reveal back while the agent is still speaking.
+                const den = nextPlayTime - seg.audioAnchorTime;
+                if (den > 1e-4) {
+                    const progress = clamp01((playbackContext.currentTime - seg.audioAnchorTime) / den);
+                    target = Math.round(progress * seg.words.length);
+                }
+            } else if (performance.now() - seg.lastTextArrivalMs > NO_AUDIO_FALLBACK_MS) {
+                // No audio ever arrived for this text → gentle drip so it isn't stuck hidden.
+                const drip = Math.ceil((performance.now() - seg.lastTextArrivalMs) / 1000 * FALLBACK_WPS);
+                target = Math.min(seg.words.length, drip);
+            }
+
+            // Monotonic: never un-reveal (guards float jitter / nextPlayTime resets).
+            target = Math.max(seg.revealedWords, Math.min(target, seg.words.length));
+            if (target !== seg.revealedWords) {
+                seg.revealedWords = target;
+                seg.textEl.textContent = seg.words.slice(0, target).join('');
+                transcript.scrollTop = transcript.scrollHeight;
+            }
+
+            // Complete only when everything is revealed AND all audio has drained.
+            const audioDrained = (nextPlayTime <= playbackContext.currentTime) && activeSources.length === 0;
+            const fullyRevealed = seg.words.length > 0 && seg.revealedWords >= seg.words.length;
+            if (fullyRevealed && audioDrained) {
+                seg.finished = true;
+                return;   // park; a late text piece or new audio re-arms via startReveal()
+            }
+            revealRafId = requestAnimationFrame(revealTick);
+        }
+
         // ==================== Transcript ====================
         function addTranscriptMessage(role, text) {
             // Hide empty state
@@ -1031,6 +1191,9 @@
             }
 
             if (role === 'user') {
+                // A user turn means the assistant's turn is over and was fully heard —
+                // flush its complete buffered text before starting the user message.
+                endAssistantSegment({ flush: true });
                 // New user message resets assistant tracking
                 currentAssistantMessage = null;
 

@@ -9,6 +9,7 @@ This project converts the AWS sample console application into a modern web inter
 - **Real-time Voice Conversation**: Full duplex speech-to-speech communication with the Amazon Nova Sonic model.
 - **Modern Web Interface**: Premium dark-themed UI built with pure HTML/CSS/JS (no heavy frontend frameworks).
 - **Live Transcripts**: Displays the ongoing conversation text as it happens.
+- **Audio-Synced Transcript Reveal**: Nova Sonic sends the assistant's text far faster than its audio plays, so the raw transcript would appear seconds before the agent finishes speaking. Instead, assistant text is buffered and revealed **word-by-word, locked to the audio playback clock** ("progress-based interpolation"), so words surface in step with what's being spoken. User messages and typed input still render instantly.
 - **Instant Barge-in (Neural VAD)**: Interrupt the assistant at any time. A client-side neural voice-activity detector (Silero, via [`@ricky0123/vad-web`](https://github.com/ricky0123/vad)) stops playback the moment *you* speak — with no server round-trip. It distinguishes human speech from background noise (fans, keyboard, music) and, because it reuses the browser's echo-cancelled mic stream, the assistant's own voice bleeding through the speakers won't trigger a false interruption. The server-side barge-in from Bedrock remains as an authoritative fallback.
 - **Tool Integration**: Includes sample tools (Date/Time and Order Tracking) that the model can invoke to fetch real-time data.
 - **Configurable Prompt**: The system prompt is loaded from a text file for easy customization without restarting the server.
@@ -35,6 +36,24 @@ Barge-in is handled on two independent paths:
 2. **Server-side (authoritative fallback)**: Bedrock's own VAD emits an `interrupted` event, which the server relays to the client as a `barge_in` message. This lifts the client's audio suppression and confirms the interruption — and covers the case where the VAD model fails to load (the app degrades gracefully to server-only barge-in).
 
 The VAD model (Silero) and its ONNX runtime are loaded from a CDN at runtime, so the first barge-in is only active after the model finishes downloading (look for `[VAD] neural VAD ready` in the browser console).
+
+### Audio-synced transcript reveal
+
+Bedrock streams the assistant's transcript text and its audio as **independent, uncorrelated** messages with no timing metadata — and the text arrives roughly 3× faster than the audio plays. To keep the transcript in step with the voice, the reveal is computed entirely on the client:
+
+1. Incoming `assistant_text` is **buffered**, not rendered immediately. It's tokenized into words.
+2. The first real (non-suppressed) audio chunk of a turn anchors a reveal clock. Using the Web Audio scheduler's own timeline (`playbackContext.currentTime` for the playback head and `nextPlayTime` for the end of all scheduled audio), a `requestAnimationFrame` loop maps playback progress → the number of words to show:
+
+   ```text
+   progress    = (currentTime - anchor) / (nextPlayTime - anchor)   // clamped 0..1
+   wordsToShow = round(progress × totalBufferedWords)
+   ```
+
+   Because `nextPlayTime` grows as more audio arrives, the denominator grows too, which naturally holds the text back while the agent is still speaking. The revealed count is **monotonic** — it never regresses.
+3. **On barge-in** (either path), the transcript **freezes at the last spoken word** and discards the unspoken remainder, so the visible text honestly reflects what was actually voiced.
+4. **Fallback**: if buffered text never receives audio (e.g. a text-only reply or dropped audio), it drips in at a gentle fixed reading speed after a short timeout, so text is never left hidden.
+
+This is entirely frontend logic (in `static/index.html`); the backend is unchanged. Reveal speed/fallback knobs are the `NO_AUDIO_FALLBACK_MS` and `FALLBACK_WPS` constants near the top of the page script.
 
 ## Prerequisites
 
@@ -113,3 +132,4 @@ location / {
 - **WebSocket Disconnected immediately**: Check your reverse proxy settings. The `Upgrade` and `Connection` headers must be passed to the backend.
 - **Task was destroyed but it is pending / InvalidStateError**: These are known warnings from the underlying `awscrt` networking library when a client disconnects abruptly. They do not affect the stability of the application.
 - **Barge-in feels delayed / doesn't stop on my voice**: Open the browser console and confirm you see `[VAD] neural VAD ready` after connecting. The Silero VAD model (~2 MB) plus its ONNX runtime are fetched from a CDN on first use, so instant barge-in only activates once that download completes. If you see `[VAD] failed to initialize...` (e.g. offline, CDN blocked, or a strict Content-Security-Policy), the app falls back to the slower server-side barge-in. To remove the CDN dependency, vendor the `onnxruntime-web` and `@ricky0123/vad-web` assets into `static/` and update the script/asset paths in `index.html`.
+- **Transcript reveals slightly ahead of / behind the voice**: The transcript is paced by the Web Audio playback clock (see [Audio-synced transcript reveal](#audio-synced-transcript-reveal)). Small drift is expected since Bedrock provides no per-word timing. If text consistently lags or leads, adjust the reveal in `static/index.html` — the `revealTick()` progress mapping — and the `FALLBACK_WPS` / `NO_AUDIO_FALLBACK_MS` constants control the no-audio fallback drip.
