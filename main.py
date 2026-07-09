@@ -420,7 +420,11 @@ class BedrockStreamManager:
         """Create a tool result event"""
 
         if isinstance(content, dict):
-            content_json_string = json.dumps(content)
+            # default=str serializes date/datetime/Decimal values that come
+            # back from the DB (e.g. valid_till, extended_date) — without it
+            # json.dumps raises TypeError and the tool result never reaches
+            # Bedrock, which then rejects the turn with "Invalid input request".
+            content_json_string = json.dumps(content, default=str)
         else:
             content_json_string = content
             
@@ -763,8 +767,10 @@ class BedrockStreamManager:
                                     self.toolUseContent = json_data['event']['toolUse']
                                     self.toolName = json_data['event']['toolUse']['toolName']
                                     self.toolUseId = json_data['event']['toolUse']['toolUseId']
-                                    input_args = self.toolUseContent.get('input', {})
-                                    logger.info(f"🔧 [TOOL CALL] {self.toolName} — args: {json.dumps(input_args)}")
+                                    # Nova Sonic puts the tool arguments under 'content' (a JSON
+                                    # string), not 'input' — fall back so the log shows real args.
+                                    input_args = self.toolUseContent.get('content', self.toolUseContent.get('input', {}))
+                                    logger.info(f"🔧 [TOOL CALL] {self.toolName} — args: {json.dumps(input_args, default=str)}")
                                     debug_print(f"Tool use detected: {self.toolName}, ID: {self.toolUseId}")
                                 elif 'contentEnd' in json_data['event'] and json_data['event'].get('contentEnd', {}).get('type') == 'TOOL':
                                     debug_print("Processing tool use and sending result")
@@ -847,8 +853,8 @@ class BedrockStreamManager:
             tool_result = await self.tool_processor.process_tool_async(tool_name, tool_content)
             duration_ms = int((time.perf_counter() - start_time) * 1000)
             
-            input_args = tool_content.get('input', {})
-            logger.info(f"🔧 [TOOL RESULT READY] {tool_name} — {duration_ms}ms — input: {json.dumps(input_args)} — result: {json.dumps(tool_result)}")
+            input_args = tool_content.get('content', tool_content.get('input', {}))
+            logger.info(f"🔧 [TOOL RESULT READY] {tool_name} — {duration_ms}ms — input: {json.dumps(input_args, default=str)} — result: {json.dumps(tool_result, default=str)}")
             
             # Send the result sequence
             await self.send_tool_start_event(content_name, tool_use_id)
