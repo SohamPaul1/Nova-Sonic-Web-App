@@ -1804,3 +1804,27 @@ Error 1 : Cannot end content [9282fe03-2316-4b28-b2aa-91f4d33bc4b0] as no conten
 2026-07-10 06:40:38,207 - INFO - PostgreSQL connection pool closed.
 2026-07-10 06:40:39,306 - INFO - ✅ PostgreSQL connection pool established.
 2026-07-10 06:40:39,357 - INFO - Starting Nova Sonic Web App on http://0.0.0.0:8009
+2026-07-10 07:30:12,895 - INFO - PostgreSQL connection pool closed.
+2026-07-10 07:30:14,001 - INFO - ✅ PostgreSQL connection pool established.
+2026-07-10 07:30:14,054 - INFO - Starting Nova Sonic Web App on http://0.0.0.0:8009
+2026-07-10 07:30:24,910 - INFO - 🗣️ [TIMING] User started speaking at: 2026-07-10 13:00:24.910
+2026-07-10 07:30:24,911 - INFO - 🗣️ [TIMING] User finished speaking at: 2026-07-10 13:00:24.911
+2026-07-10 07:30:25,399 - INFO - 🤖 [TIMING] AI Agent started speaking at: 2026-07-10 13:00:25.398
+2026-07-10 07:30:25,399 - INFO - 🤖 [TIMING] AI Agent finished speaking at: 2026-07-10 13:00:25.399
+2026-07-10 07:30:25,510 - INFO - 🤖 [TIMING] AI Agent started speaking at: 2026-07-10 13:00:25.510
+2026-07-10 07:30:27,654 - INFO - 🤖 [TIMING] AI Agent finished speaking at: 2026-07-10 13:00:27.654
+2026-07-10 07:30:27,655 - INFO - 🤖 [TIMING] AI Agent started speaking at: 2026-07-10 13:00:27.655
+2026-07-10 07:30:27,656 - INFO - 🤖 [TIMING] AI Agent finished speaking at: 2026-07-10 13:00:27.656
+2026-07-10 07:30:27,657 - INFO - 🤖 [TIMING] AI Agent started speaking at: 2026-07-10 13:00:27.657
+2026-07-10 07:30:28,213 - INFO - 🤖 [TIMING] AI Agent finished speaking at: 2026-07-10 13:00:28.213
+2026-07-10 07:30:32,062 - INFO - 🤖 [TIMING] AI Agent started speaking at: 2026-07-10 13:00:32.062
+2026-07-10 07:30:32,063 - INFO - 🤖 [TIMING] AI Agent finished speaking at: 2026-07-10 13:00:32.063
+2026-07-10 07:30:33,920 - INFO - 🤖 [TIMING] AI Agent started speaking at: 2026-07-10 13:00:33.919
+2026-07-10 07:30:33,921 - INFO - 🤖 [TIMING] AI Agent finished speaking at: 2026-07-10 13:00:33.921
+2026-07-10 07:30:43,428 - ERROR - Error receiving response: Invalid input request, please fix your input and try again.
+2026-07-10 07:36:45,306 - INFO - PostgreSQL connection pool closed.
+2026-07-10 07:36:46,345 - INFO - ✅ PostgreSQL connection pool established.
+2026-07-10 07:36:46,394 - INFO - Starting Nova Sonic Web App on http://0.0.0.0:8009
+2026-07-10 07:38:39,682 - INFO - PostgreSQL connection pool closed.
+2026-07-10 07:38:40,723 - INFO - ✅ PostgreSQL connection pool established.
+2026-07-10 07:38:40,770 - INFO - Starting Nova Sonic Web App on http://0.0.0.0:8009

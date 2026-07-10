@@ -7,7 +7,7 @@
     <meta name="description" content="Customer Support for Adamas Times Newspaper">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
     <style>
         /* ===== CSS Reset & Base ===== */
@@ -18,81 +18,142 @@
         }
 
         :root {
-            --bg-primary: #f9f9f7; /* Off-white newsprint feel */
-            --bg-secondary: #ffffff;
-            --bg-card: #ffffff;
-            --border-subtle: #e5e5e0;
-            --border-accent: #1a1a24;
-            --text-primary: #1a1a24; /* Charcoal */
-            --text-secondary: #4a4a52;
-            --text-muted: #73737a;
-            --accent: #8b0000; /* Deep crimson red */
-            --accent-glow: rgba(139, 0, 0, 0.2);
-            --mic-active: #d32f2f;
-            --mic-active-glow: rgba(211, 47, 47, 0.3);
-            --user-bg: #f0f0ee;
-            --user-border: #e0e0dc;
-            --user-accent: #4a4a52;
-            --assistant-bg: #ffffff;
-            --assistant-border: #d4d4cf;
-            --assistant-accent: #8b0000;
-            --success: #2e7d32;
-            --warning: #ed6c02;
-            --error: #d32f2f;
+            --bg-primary: #08081a;
+            --bg-secondary: #10102a;
+            --bg-card: rgba(255, 255, 255, 0.03);
+            --bg-card-hover: rgba(255, 255, 255, 0.05);
+            --border-subtle: rgba(255, 255, 255, 0.06);
+            --border-accent: rgba(108, 99, 255, 0.3);
+            --text-primary: #eaeaf0;
+            --text-secondary: #8888a8;
+            --text-muted: #55556a;
+            --accent: #6c63ff;
+            --accent-glow: rgba(108, 99, 255, 0.4);
+            --accent-secondary: #a855f7;
+            --mic-active: #ef4444;
+            --mic-active-glow: rgba(239, 68, 68, 0.5);
+            --user-bg: rgba(96, 165, 250, 0.08);
+            --user-border: rgba(96, 165, 250, 0.2);
+            --user-accent: #60a5fa;
+            --assistant-bg: rgba(192, 132, 252, 0.08);
+            --assistant-border: rgba(192, 132, 252, 0.2);
+            --assistant-accent: #c084fc;
+            --success: #4ade80;
+            --success-glow: rgba(74, 222, 128, 0.3);
+            --warning: #fbbf24;
+            --error: #f87171;
+            --error-glow: rgba(248, 113, 113, 0.3);
         }
 
         body {
-            font-family: 'Inter', -apple-system, sans-serif;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
             background: var(--bg-primary);
+            background-image:
+                radial-gradient(ellipse at 20% 50%, rgba(108, 99, 255, 0.06) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 20%, rgba(168, 85, 247, 0.04) 0%, transparent 50%),
+                radial-gradient(ellipse at 50% 100%, rgba(59, 130, 246, 0.04) 0%, transparent 40%);
             color: var(--text-primary);
             min-height: 100vh;
             display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 1rem;
-            background-image: linear-gradient(var(--border-subtle) 1px, transparent 1px), linear-gradient(90deg, var(--border-subtle) 1px, transparent 1px);
-            background-size: 40px 40px;
-            background-position: -1px -1px;
+            flex-direction: column;
+            overflow: hidden;
         }
 
-        /* ===== Main Container ===== */
-        .container {
-            width: 100%;
-            max-width: 520px;
-            background: var(--bg-secondary);
-            border: 1px solid var(--border-subtle);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+        /* ===== Page Layout ===== */
+        .page-wrapper {
             display: flex;
             flex-direction: column;
-            gap: 1.5rem;
-            height: 90vh;
-            max-height: 820px;
-            border-radius: 8px;
+            height: 100vh;
+            width: 100%;
+        }
+
+        .page-header {
+            text-align: center;
+            padding: 1.25rem 1rem;
+            border-bottom: 1px solid var(--border-subtle);
+            flex-shrink: 0;
+        }
+
+        .page-body {
+            display: flex;
+            flex: 1;
+            min-height: 0;
+            padding: 1rem;
+            gap: 1rem;
+        }
+
+        .left-panel {
+            width: 30%;
+            min-width: 320px;
+            display: flex;
+            flex-direction: column;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            background: rgba(255, 255, 255, 0.03);
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.05);
             overflow: hidden;
+        }
+
+        .right-panel {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            background: rgba(255, 255, 255, 0.03);
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+            overflow: hidden;
+        }
+
+        /* ===== Main Container (inside left panel) ===== */
+        .container {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+            flex: 1;
+            min-height: 0;
+            padding: 1rem 0;
         }
 
         /* ===== Header ===== */
         .header {
             text-align: center;
-            padding: 1.5rem 1.5rem 1rem;
-            border-bottom: 2px solid var(--border-accent);
-            background: var(--bg-secondary);
         }
 
         .title {
-            font-family: 'Playfair Display', serif;
             font-size: 2.2rem;
             font-weight: 700;
-            color: var(--text-primary);
-            letter-spacing: 0.02em;
-            margin-bottom: 0.25rem;
+            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-secondary) 50%, #60a5fa 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: -0.03em;
         }
 
         .subtitle {
-            font-family: 'Inter', sans-serif;
-            font-size: 0.75rem;
+            font-size: 0.8rem;
             color: var(--text-muted);
-            font-weight: 500;
+            font-weight: 400;
+            margin-top: 0.25rem;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+        }
+
+        /* Left panel sub-header */
+        .panel-header {
+            text-align: center;
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid var(--border-subtle);
+            flex-shrink: 0;
+        }
+
+        .panel-header .panel-title {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--text-secondary);
             text-transform: uppercase;
             letter-spacing: 0.1em;
         }
@@ -102,29 +163,48 @@
             display: inline-flex;
             align-items: center;
             gap: 0.5rem;
-            padding: 0.25rem 0.75rem;
-            background: var(--bg-primary);
+            padding: 0.4rem 1rem;
+            background: var(--bg-card);
             border: 1px solid var(--border-subtle);
-            border-radius: 4px;
-            font-size: 0.7rem;
+            border-radius: 100px;
+            font-size: 0.75rem;
             font-weight: 500;
             color: var(--text-secondary);
-            margin: 0 auto;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
+            transition: all 0.4s ease;
         }
 
         .status-dot {
-            width: 6px;
-            height: 6px;
+            width: 8px;
+            height: 8px;
             border-radius: 50%;
+            background: var(--text-muted);
+            transition: all 0.4s ease;
+        }
+
+        .status-dot.connected {
+            background: var(--success);
+            box-shadow: 0 0 8px var(--success-glow);
+            animation: statusPulse 2s ease-in-out infinite;
+        }
+
+        .status-dot.connecting {
+            background: var(--warning);
+            animation: statusPulse 1s ease-in-out infinite;
+        }
+
+        .status-dot.error {
+            background: var(--error);
+            box-shadow: 0 0 8px var(--error-glow);
+        }
+
+        .status-dot.disconnected {
             background: var(--text-muted);
         }
 
-        .status-dot.connected { background: var(--success); }
-        .status-dot.connecting { background: var(--warning); }
-        .status-dot.error { background: var(--error); }
-        .status-dot.disconnected { background: var(--text-muted); }
+        @keyframes statusPulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
 
         /* ===== Transcript Area ===== */
         .transcript-wrapper {
@@ -132,22 +212,45 @@
             flex: 1;
             min-height: 0;
             position: relative;
-            padding: 0 1rem;
+        }
+
+        .transcript-wrapper::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2rem;
+            background: linear-gradient(to bottom, var(--bg-primary), transparent);
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        .transcript-wrapper::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 2rem;
+            background: linear-gradient(to top, var(--bg-primary), transparent);
+            z-index: 1;
+            pointer-events: none;
         }
 
         .transcript {
             height: 100%;
             overflow-y: auto;
-            padding: 0 0.5rem 1.5rem;
+            padding: 1.5rem 0.5rem;
             display: flex;
             flex-direction: column;
-            gap: 1rem;
+            gap: 0.75rem;
             scrollbar-width: thin;
-            scrollbar-color: var(--border-subtle) transparent;
+            scrollbar-color: rgba(255,255,255,0.08) transparent;
         }
 
         .transcript::-webkit-scrollbar {
-            width: 6px;
+            width: 4px;
         }
 
         .transcript::-webkit-scrollbar-track {
@@ -155,8 +258,8 @@
         }
 
         .transcript::-webkit-scrollbar-thumb {
-            background: var(--border-subtle);
-            border-radius: 3px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
         }
 
         .transcript-empty {
@@ -166,23 +269,24 @@
             justify-content: center;
             height: 100%;
             color: var(--text-muted);
-            font-size: 0.9rem;
-            gap: 1rem;
-            opacity: 0.8;
-            font-family: 'Playfair Display', serif;
-            font-style: italic;
+            font-size: 0.85rem;
+            gap: 0.75rem;
+            opacity: 0.6;
+        }
+
+        .transcript-empty svg {
+            opacity: 0.3;
         }
 
         /* ===== Messages ===== */
         .message {
-            padding: 1rem;
-            border-radius: 4px;
-            font-size: 0.95rem;
+            padding: 0.75rem 1rem;
+            border-radius: 12px;
+            font-size: 0.875rem;
             line-height: 1.6;
             max-width: 90%;
-            animation: messageSlideIn 0.2s ease-out;
+            animation: messageSlideIn 0.3s ease-out;
             word-wrap: break-word;
-            box-shadow: 0 1px 2px rgba(0,0,0,0.02);
         }
 
         .message .message-role {
@@ -191,14 +295,14 @@
             font-weight: 600;
             text-transform: uppercase;
             letter-spacing: 0.08em;
-            margin-bottom: 0.4rem;
+            margin-bottom: 0.3rem;
         }
 
         .message.user {
             align-self: flex-end;
             background: var(--user-bg);
             border: 1px solid var(--user-border);
-            border-bottom-right-radius: 0;
+            border-bottom-right-radius: 4px;
         }
 
         .message.user .message-role {
@@ -209,8 +313,7 @@
             align-self: flex-start;
             background: var(--assistant-bg);
             border: 1px solid var(--assistant-border);
-            border-bottom-left-radius: 0;
-            border-left: 3px solid var(--accent);
+            border-bottom-left-radius: 4px;
         }
 
         .message.assistant .message-role {
@@ -218,19 +321,24 @@
         }
 
         @keyframes messageSlideIn {
-            from { opacity: 0; transform: translateY(4px); }
-            to { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(8px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
-        /* ===== Controls ===== */
+        /* ===== Mic Button ===== */
         .mic-area {
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 1rem;
-            padding: 1rem 1.5rem 1.5rem;
-            background: var(--bg-primary);
-            border-top: 1px solid var(--border-subtle);
+            gap: 0.75rem;
+            padding: 0 1rem 0.5rem;
+            width: 100%;
         }
 
         .action-buttons {
@@ -241,51 +349,70 @@
         }
 
         .session-button {
-            width: 56px;
-            height: 56px;
+            width: 72px;
+            height: 72px;
             border-radius: 50%;
-            border: 1px solid var(--success);
-            background: #fff;
+            border: 2px solid rgba(74, 222, 128, 0.3);
+            background: linear-gradient(135deg, rgba(74, 222, 128, 0.15), rgba(74, 222, 128, 0.05));
             color: var(--success);
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: all 0.2s ease;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            transition: all 0.3s ease;
+            position: relative;
+            outline: none;
         }
 
         .session-button:hover {
-            background: #f1f8e9;
+            transform: scale(1.05);
+            background: linear-gradient(135deg, rgba(74, 222, 128, 0.25), rgba(74, 222, 128, 0.1));
+        }
+
+        .session-button:active {
+            transform: scale(0.98);
         }
 
         .session-button.active {
-            border-color: var(--error);
+            border-color: rgba(239, 68, 68, 0.3);
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.15), rgba(239, 68, 68, 0.05));
             color: var(--error);
         }
 
         .session-button.active:hover {
-            background: #ffebee;
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.25), rgba(239, 68, 68, 0.1));
+        }
+
+        .session-button svg {
+            width: 28px;
+            height: 28px;
+            transition: all 0.3s ease;
         }
 
         .mic-button {
-            width: 64px;
-            height: 64px;
+            width: 72px;
+            height: 72px;
             border-radius: 50%;
-            border: 1px solid var(--accent);
-            background: #fff;
+            border: 2px solid var(--border-accent);
+            background: linear-gradient(135deg, rgba(108, 99, 255, 0.15), rgba(168, 85, 247, 0.1));
             color: var(--accent);
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: all 0.2s ease;
-            box-shadow: 0 2px 8px rgba(139,0,0,0.1);
+            transition: all 0.3s ease;
+            position: relative;
+            outline: none;
         }
 
         .mic-button:hover:not(:disabled) {
-            background: var(--accent);
-            color: #fff;
+            background: linear-gradient(135deg, rgba(108, 99, 255, 0.25), rgba(168, 85, 247, 0.15));
+            border-color: var(--accent);
+            transform: scale(1.05);
+        }
+
+        .mic-button:active:not(:disabled) {
+            transform: scale(0.98);
         }
 
         .mic-button:disabled {
@@ -294,32 +421,75 @@
             filter: grayscale(1);
         }
 
+        .mic-button svg {
+            width: 28px;
+            height: 28px;
+            transition: all 0.3s ease;
+        }
+
         .mic-button.active {
-            background: var(--mic-active);
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.2), rgba(239, 68, 68, 0.1));
             border-color: var(--mic-active);
-            color: #fff;
-            animation: micPulse 2s infinite;
+            color: var(--mic-active);
+            animation: micPulse 2s ease-in-out infinite;
         }
 
         .mic-button.muted {
-            background: var(--bg-primary);
-            border-color: var(--border-subtle);
+            background: rgba(255, 255, 255, 0.05);
+            border-color: rgba(255, 255, 255, 0.1);
             color: var(--text-muted);
             animation: none;
-            box-shadow: none;
+        }
+        
+        .mic-button.muted::before, .mic-button.muted::after {
+            display: none;
+        }
+
+        .mic-button.active::before {
+            content: '';
+            position: absolute;
+            inset: -6px;
+            border-radius: 50%;
+            border: 2px solid var(--mic-active);
+            opacity: 0;
+            animation: micRing 2s ease-out infinite;
+        }
+
+        .mic-button.active::after {
+            content: '';
+            position: absolute;
+            inset: -14px;
+            border-radius: 50%;
+            border: 1px solid var(--mic-active);
+            opacity: 0;
+            animation: micRing 2s ease-out 0.5s infinite;
         }
 
         @keyframes micPulse {
-            0% { box-shadow: 0 0 0 0 rgba(211, 47, 47, 0.4); }
-            70% { box-shadow: 0 0 0 15px rgba(211, 47, 47, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(211, 47, 47, 0); }
+            0%, 100% {
+                box-shadow: 0 0 0 0 var(--mic-active-glow);
+            }
+            50% {
+                box-shadow: 0 0 20px 4px var(--mic-active-glow);
+            }
+        }
+
+        @keyframes micRing {
+            0% {
+                transform: scale(0.95);
+                opacity: 0.6;
+            }
+            100% {
+                transform: scale(1.3);
+                opacity: 0;
+            }
         }
 
         .mic-label {
             font-size: 0.75rem;
             color: var(--text-muted);
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
+            font-weight: 400;
+            transition: color 0.3s ease;
         }
 
         /* ===== Text Input ===== */
@@ -327,23 +497,26 @@
             width: 100%;
             display: flex;
             gap: 0.5rem;
+            margin-bottom: 0.5rem;
         }
 
         .text-input {
             flex: 1;
-            background: #fff;
+            background: var(--bg-card);
             border: 1px solid var(--border-subtle);
-            border-radius: 4px;
+            border-radius: 20px;
             padding: 0.75rem 1rem;
             color: var(--text-primary);
             font-family: inherit;
-            font-size: 0.9rem;
+            font-size: 0.875rem;
             outline: none;
-            transition: border-color 0.2s;
+            transition: all 0.3s ease;
         }
 
         .text-input:focus {
             border-color: var(--accent);
+            box-shadow: 0 0 0 2px var(--accent-glow);
+            background: var(--bg-card-hover);
         }
 
         .text-input::placeholder {
@@ -351,97 +524,141 @@
         }
 
         .send-button {
-            background: var(--accent);
+            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-secondary) 100%);
             border: none;
-            border-radius: 4px;
+            border-radius: 20px;
             color: white;
             padding: 0 1.25rem;
+            font-weight: 600;
             cursor: pointer;
-            transition: background 0.2s;
+            transition: all 0.3s ease;
             display: flex;
             align-items: center;
             justify-content: center;
         }
 
-        .send-button:hover:not(:disabled) {
-            background: #6a0000;
+        .send-button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 10px var(--accent-glow);
         }
 
+        .send-button:active {
+            transform: scale(0.95);
+        }
+        
         .send-button:disabled {
             opacity: 0.5;
             cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
         }
 
         /* ===== Responsive ===== */
-        @media (max-width: 600px) {
-            .container {
-                height: 100vh;
-                max-height: none;
-                border-radius: 0;
-                border: none;
+        @media (max-width: 900px) {
+            .page-body {
+                flex-direction: column;
+            }
+
+            .left-panel {
+                width: 100%;
+                min-width: unset;
+                border-right: none;
+                border-bottom: 1px solid var(--border-subtle);
+                flex: 1;
+            }
+
+            .right-panel {
+                display: none;
+            }
+
+            .title {
+                font-size: 1.6rem;
+            }
+
+            .session-button,
+            .mic-button {
+                width: 64px;
+                height: 64px;
             }
         }
     </style>
 
 </head>
 <body>
-    <div class="container">
-        <!-- Header -->
-        <div class="header">
-            <h1 class="title">The Adamas Times</h1>
-            <p class="subtitle">Subscription Helpdesk</p>
+    <div class="page-wrapper">
+        <!-- Top Header (full width, centered) -->
+        <div class="page-header">
+            <div class="header">
+                <h1 class="title">The Adamas Times</h1>
+                <p class="subtitle">Subscription Helpdesk</p>
+            </div>
         </div>
 
-        <!-- Status -->
-        <div class="status-badge" id="status-badge">
-            <span class="status-dot disconnected" id="status-dot"></span>
-            <span id="status-text">Ready</span>
-        </div>
+        <!-- Two-column body -->
+        <div class="page-body">
+            <!-- Left Panel: Agent conversation UI -->
+            <div class="left-panel">
+                <div class="panel-header">
+                    <span class="panel-title">Chat with Raj</span>
+                </div>
+                <div class="container">
+                    <!-- Status -->
+                    <div class="status-badge" id="status-badge">
+                        <span class="status-dot disconnected" id="status-dot"></span>
+                        <span id="status-text">Ready</span>
+                    </div>
 
-        <!-- Transcript -->
-        <div class="transcript-wrapper">
-            <div class="transcript" id="transcript">
-                <div class="transcript-empty" id="transcript-empty">
-                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
-                        <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
-                        <line x1="12" y1="19" x2="12" y2="23"/>
-                        <line x1="8" y1="23" x2="16" y2="23"/>
-                    </svg>
-                    <span>Click the microphone to start a conversation</span>
+                    <!-- Transcript -->
+                    <div class="transcript-wrapper">
+                        <div class="transcript" id="transcript">
+                            <div class="transcript-empty" id="transcript-empty">
+                                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
+                                    <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+                                    <line x1="12" y1="19" x2="12" y2="23"/>
+                                    <line x1="8" y1="23" x2="16" y2="23"/>
+                                </svg>
+                                <span>Click the microphone to start a conversation</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Mic Button -->
+                    <div class="mic-area">
+                        <form class="input-area" id="text-form">
+                            <input type="text" class="text-input" id="text-input" placeholder="Type a message..." disabled autocomplete="off">
+                            <button type="submit" class="send-button" id="send-button" disabled aria-label="Send text">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <line x1="22" y1="2" x2="11" y2="13"></line>
+                                    <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                                </svg>
+                            </button>
+                        </form>
+                        <div class="action-buttons">
+                            <button class="session-button" id="session-button" aria-label="Toggle session">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M18.36 6.64a9 9 0 1 1-12.73 0"></path>
+                                    <line x1="12" y1="2" x2="12" y2="12"></line>
+                                </svg>
+                            </button>
+                            <button class="mic-button" id="mic-button" aria-label="Toggle microphone" disabled>
+                                <!-- Mic icon -->
+                                <svg id="mic-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
+                                    <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+                                    <line x1="12" y1="19" x2="12" y2="23"/>
+                                    <line x1="8" y1="23" x2="16" y2="23"/>
+                                </svg>
+                            </button>
+                        </div>
+                        <span class="mic-label" id="mic-label">Click power button to start</span>
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <!-- Mic Button -->
-        <div class="mic-area">
-            <form class="input-area" id="text-form">
-                <input type="text" class="text-input" id="text-input" placeholder="Type a message..." disabled autocomplete="off">
-                <button type="submit" class="send-button" id="send-button" disabled aria-label="Send text">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <line x1="22" y1="2" x2="11" y2="13"></line>
-                        <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
-                    </svg>
-                </button>
-            </form>
-            <div class="action-buttons">
-                <button class="session-button" id="session-button" aria-label="Toggle session">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M18.36 6.64a9 9 0 1 1-12.73 0"></path>
-                        <line x1="12" y1="2" x2="12" y2="12"></line>
-                    </svg>
-                </button>
-                <button class="mic-button" id="mic-button" aria-label="Toggle microphone" disabled>
-                    <!-- Mic icon -->
-                    <svg id="mic-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
-                        <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
-                        <line x1="12" y1="19" x2="12" y2="23"/>
-                        <line x1="8" y1="23" x2="16" y2="23"/>
-                    </svg>
-                </button>
+            <!-- Right Panel: Blank white area (placeholder) -->
+            <div class="right-panel">
             </div>
-            <span class="mic-label" id="mic-label">Click power button to start</span>
         </div>
     </div>
 
