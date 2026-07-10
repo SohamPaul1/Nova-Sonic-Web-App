@@ -956,7 +956,7 @@ async def websocket_endpoint(websocket: WebSocket):
         await stream_manager.initialize_stream()
         
         # Force the agent to speak first by sending a fixed user message
-        initial_message = "[System Context: A new user just walked up to your demo booth at the event. Give a warm, gender-neutral welcome. Introduce yourself as Raj from Adamas Times, briefly mention you can help them explore subscription plans or look up their existing status, and ask how you can help them today. Keep it brief and engaging.]"
+        initial_message = "[System Context: A new user just connected to your Adamas Times web app. Give a warm, gender-neutral welcome. Introduce yourself as Raj from Adamas Times, briefly mention you can help them explore subscription plans or look up their existing status, and ask how you can help them today. Keep it brief and engaging.]"
         await stream_manager.send_initial_user_text(initial_message)
 
         # Start the audio content block (one per session)

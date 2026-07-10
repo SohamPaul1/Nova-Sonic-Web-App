@@ -1625,3 +1625,182 @@ Error 1 : Cannot end content [9282fe03-2316-4b28-b2aa-91f4d33bc4b0] as no conten
 2026-07-09 17:58:39,599 - INFO - 🤖 [TIMING] AI Agent started speaking at: 2026-07-09 23:28:39.599
 2026-07-09 17:58:39,600 - INFO - 🤖 [TIMING] AI Agent finished speaking at: 2026-07-09 23:28:39.600
 2026-07-09 17:58:41,237 - ERROR - Error receiving response: Invalid input request, please fix your input and try again.
+2026-07-09 18:08:14,639 - INFO - PostgreSQL connection pool closed.
+2026-07-09 18:08:15,786 - INFO - ✅ PostgreSQL connection pool established.
+2026-07-09 18:08:15,842 - INFO - Starting Nova Sonic Web App on http://0.0.0.0:8009
+2026-07-09 18:08:27,278 - INFO - 🤖 [TIMING] AI Agent started speaking at: 2026-07-09 23:38:27.278
+2026-07-09 18:08:27,280 - INFO - 🤖 [TIMING] AI Agent finished speaking at: 2026-07-09 23:38:27.280
+2026-07-09 18:08:27,395 - INFO - 🤖 [TIMING] AI Agent started speaking at: 2026-07-09 23:38:27.395
+2026-07-09 18:08:29,530 - INFO - 🤖 [TIMING] AI Agent finished speaking at: 2026-07-09 23:38:29.530
+2026-07-09 18:08:29,530 - INFO - 🤖 [TIMING] AI Agent started speaking at: 2026-07-09 23:38:29.530
+2026-07-09 18:08:29,531 - INFO - 🤖 [TIMING] AI Agent finished speaking at: 2026-07-09 23:38:29.531
+2026-07-09 18:08:29,532 - INFO - 🤖 [TIMING] AI Agent started speaking at: 2026-07-09 23:38:29.532
+2026-07-09 18:08:30,077 - INFO - 🤖 [TIMING] AI Agent finished speaking at: 2026-07-09 23:38:30.076
+2026-07-09 18:08:34,025 - INFO - 🤖 [TIMING] AI Agent started speaking at: 2026-07-09 23:38:34.025
+2026-07-09 18:08:34,026 - INFO - 🤖 [TIMING] AI Agent finished speaking at: 2026-07-09 23:38:34.026
+2026-07-09 18:08:35,392 - INFO - 🤖 [TIMING] AI Agent started speaking at: 2026-07-09 23:38:35.392
+2026-07-09 18:08:35,393 - INFO - 🚨 [BARGE-IN] User interrupted AI at: 2026-07-09 23:38:35.393
+2026-07-09 18:08:35,394 - INFO - 🤖 [TIMING] AI Agent was interrupted at: 2026-07-09 23:38:35.393
+2026-07-09 18:08:35,394 - INFO - 🤖 [TIMING] AI Agent started speaking at: 2026-07-09 23:38:35.394
+2026-07-09 18:08:35,395 - INFO - 🤖 [TIMING] AI Agent finished speaking at: 2026-07-09 23:38:35.395
+2026-07-09 18:08:35,835 - INFO - 🤖 [TIMING] AI Agent started speaking at: 2026-07-09 23:38:35.835
+2026-07-09 18:08:35,836 - INFO - 🤖 [TIMING] AI Agent finished speaking at: 2026-07-09 23:38:35.836
+2026-07-09 18:08:35,950 - INFO - 🤖 [TIMING] AI Agent started speaking at: 2026-07-09 23:38:35.950
+2026-07-09 18:08:37,221 - INFO - 🤖 [TIMING] AI Agent finished speaking at: 2026-07-09 23:38:37.221
+2026-07-09 18:08:37,222 - INFO - 🤖 [TIMING] AI Agent started speaking at: 2026-07-09 23:38:37.222
+2026-07-09 18:08:37,222 - INFO - 🤖 [TIMING] AI Agent finished speaking at: 2026-07-09 23:38:37.222
+2026-07-09 18:08:37,223 - INFO - 🤖 [TIMING] AI Agent started speaking at: 2026-07-09 23:38:37.223
+2026-07-09 18:08:37,912 - INFO - 🤖 [TIMING] AI Agent finished speaking at: 2026-07-09 23:38:37.912
+2026-07-09 18:08:40,215 - INFO - 🤖 [TIMING] AI Agent started speaking at: 2026-07-09 23:38:40.215
+2026-07-09 18:08:40,216 - INFO - 🤖 [TIMING] AI Agent finished speaking at: 2026-07-09 23:38:40.216
+2026-07-09 18:08:41,672 - INFO - 🤖 [TIMING] AI Agent started speaking at: 2026-07-09 23:38:41.672
+2026-07-09 18:08:41,674 - INFO - 🚨 [BARGE-IN] User interrupted AI at: 2026-07-09 23:38:41.674
+2026-07-09 18:08:41,674 - INFO - 🤖 [TIMING] AI Agent was interrupted at: 2026-07-09 23:38:41.674
+2026-07-09 18:08:41,675 - INFO - 🤖 [TIMING] AI Agent started speaking at: 2026-07-09 23:38:41.675
+2026-07-09 18:08:41,676 - INFO - 🤖 [TIMING] AI Agent finished speaking at: 2026-07-09 23:38:41.676
+2026-07-09 18:08:42,142 - INFO - 🔧 [TOOL CALL] checkUserStatus — args: "{\"contact_number\":\"9800011105\"}"
+2026-07-09 18:08:42,153 - INFO - 🔧 [TOOL RESULT READY] checkUserStatus — 9ms — input: "{\"contact_number\":\"9800011105\"}" — result: {"statusCode": 200, "user_type": "new_subscription_request", "user_details": {"user_name": "Sourav Ganguly", "contact_number": "9800011105", "address": "24 Howrah Maidan , Howrah", "intended_plan": "monthly", "startdate": "2026-03-03", "message": null}, "message": "A new subscription request already exists."}
+2026-07-09 18:08:42,955 - INFO - 🤖 [TIMING] AI Agent started speaking at: 2026-07-09 23:38:42.955
+2026-07-09 18:08:42,956 - INFO - 🤖 [TIMING] AI Agent finished speaking at: 2026-07-09 23:38:42.956
+2026-07-09 18:08:43,068 - INFO - 🤖 [TIMING] AI Agent started speaking at: 2026-07-09 23:38:43.068
+2026-07-09 18:08:44,331 - INFO - 🤖 [TIMING] AI Agent finished speaking at: 2026-07-09 23:38:44.330
+2026-07-09 18:08:44,331 - INFO - 🤖 [TIMING] AI Agent started speaking at: 2026-07-09 23:38:44.331
+2026-07-09 18:08:44,332 - INFO - 🤖 [TIMING] AI Agent finished speaking at: 2026-07-09 23:38:44.332
+2026-07-09 18:08:44,333 - INFO - 🤖 [TIMING] AI Agent started speaking at: 2026-07-09 23:38:44.333
+2026-07-09 18:08:46,293 - INFO - 🤖 [TIMING] AI Agent finished speaking at: 2026-07-09 23:38:46.293
+2026-07-09 18:08:46,293 - INFO - 🤖 [TIMING] AI Agent started speaking at: 2026-07-09 23:38:46.293
+2026-07-09 18:08:46,430 - INFO - 🤖 [TIMING] AI Agent finished speaking at: 2026-07-09 23:38:46.430
+2026-07-09 18:08:46,431 - INFO - 🤖 [TIMING] AI Agent started speaking at: 2026-07-09 23:38:46.431
+2026-07-09 18:08:47,830 - INFO - 🤖 [TIMING] AI Agent finished speaking at: 2026-07-09 23:38:47.829
+2026-07-09 18:08:47,830 - INFO - 🤖 [TIMING] AI Agent started speaking at: 2026-07-09 23:38:47.830
+2026-07-09 18:08:47,832 - INFO - 🤖 [TIMING] AI Agent finished speaking at: 2026-07-09 23:38:47.832
+2026-07-09 18:08:53,117 - INFO - 🤖 [TIMING] AI Agent started speaking at: 2026-07-09 23:38:53.117
+2026-07-09 18:08:53,119 - INFO - 🤖 [TIMING] AI Agent finished speaking at: 2026-07-09 23:38:53.118
+2026-07-09 18:08:57,532 - INFO - 🤖 [TIMING] AI Agent started speaking at: 2026-07-09 23:38:57.532
+2026-07-09 18:08:57,533 - INFO - 🤖 [TIMING] AI Agent finished speaking at: 2026-07-09 23:38:57.533
+2026-07-09 18:09:02,433 - INFO - 🤖 [TIMING] AI Agent started speaking at: 2026-07-09 23:39:02.433
+2026-07-09 18:09:02,434 - INFO - 🤖 [TIMING] AI Agent finished speaking at: 2026-07-09 23:39:02.434
+2026-07-09 18:09:02,549 - INFO - 🤖 [TIMING] AI Agent started speaking at: 2026-07-09 23:39:02.549
+2026-07-09 18:09:03,453 - INFO - 🤖 [TIMING] AI Agent finished speaking at: 2026-07-09 23:39:03.452
+2026-07-09 18:09:03,453 - INFO - 🤖 [TIMING] AI Agent started speaking at: 2026-07-09 23:39:03.453
+2026-07-09 18:09:03,454 - INFO - 🤖 [TIMING] AI Agent finished speaking at: 2026-07-09 23:39:03.454
+2026-07-09 18:09:03,455 - INFO - 🤖 [TIMING] AI Agent started speaking at: 2026-07-09 23:39:03.455
+2026-07-09 18:09:05,265 - INFO - 🤖 [TIMING] AI Agent finished speaking at: 2026-07-09 23:39:05.265
+2026-07-09 18:09:05,265 - INFO - 🤖 [TIMING] AI Agent started speaking at: 2026-07-09 23:39:05.265
+2026-07-09 18:09:05,266 - INFO - 🤖 [TIMING] AI Agent finished speaking at: 2026-07-09 23:39:05.266
+2026-07-09 18:09:05,266 - INFO - 🤖 [TIMING] AI Agent started speaking at: 2026-07-09 23:39:05.266
+2026-07-09 18:09:09,163 - INFO - 🤖 [TIMING] AI Agent finished speaking at: 2026-07-09 23:39:09.163
+2026-07-09 18:09:09,165 - INFO - 🤖 [TIMING] AI Agent started speaking at: 2026-07-09 23:39:09.164
+2026-07-09 18:09:09,166 - INFO - 🤖 [TIMING] AI Agent finished speaking at: 2026-07-09 23:39:09.165
+2026-07-09 18:09:09,166 - INFO - 🤖 [TIMING] AI Agent started speaking at: 2026-07-09 23:39:09.166
+2026-07-09 18:09:09,167 - INFO - 🤖 [TIMING] AI Agent finished speaking at: 2026-07-09 23:39:09.167
+2026-07-09 18:09:09,168 - INFO - 🤖 [TIMING] AI Agent started speaking at: 2026-07-09 23:39:09.168
+2026-07-09 18:09:10,136 - INFO - 🤖 [TIMING] AI Agent finished speaking at: 2026-07-09 23:39:10.136
+2026-07-09 18:09:11,003 - INFO - 🤖 [TIMING] AI Agent started speaking at: 2026-07-09 23:39:11.003
+2026-07-09 18:09:11,004 - INFO - 🤖 [TIMING] AI Agent finished speaking at: 2026-07-09 23:39:11.004
+2026-07-09 18:09:22,344 - INFO - 🤖 [TIMING] AI Agent started speaking at: 2026-07-09 23:39:22.344
+2026-07-09 18:09:22,345 - INFO - 🤖 [TIMING] AI Agent finished speaking at: 2026-07-09 23:39:22.345
+2026-07-09 18:09:25,629 - INFO - 🤖 [TIMING] AI Agent started speaking at: 2026-07-09 23:39:25.629
+2026-07-09 18:09:25,630 - INFO - 🤖 [TIMING] AI Agent finished speaking at: 2026-07-09 23:39:25.630
+2026-07-09 18:09:57,944 - INFO - 🔧 [TOOL CALL] getSubscriptionPlans — args: "{}"
+2026-07-09 18:09:57,945 - INFO - 🔧 [TOOL RESULT READY] getSubscriptionPlans — 0ms — input: "{}" — result: {"statusCode": 200, "plan_pricing": {"Monthly": 200, "Quarterly": 500, "Half Yearly": 900, "Yearly": 1650}}
+2026-07-09 18:09:58,723 - INFO - 🤖 [TIMING] AI Agent started speaking at: 2026-07-09 23:39:58.723
+2026-07-09 18:09:58,725 - INFO - 🤖 [TIMING] AI Agent finished speaking at: 2026-07-09 23:39:58.725
+2026-07-09 18:09:58,842 - INFO - 🤖 [TIMING] AI Agent started speaking at: 2026-07-09 23:39:58.842
+2026-07-09 18:10:03,230 - INFO - 🤖 [TIMING] AI Agent finished speaking at: 2026-07-09 23:40:03.230
+2026-07-09 18:10:03,231 - INFO - 🤖 [TIMING] AI Agent started speaking at: 2026-07-09 23:40:03.231
+2026-07-09 18:10:03,233 - INFO - 🤖 [TIMING] AI Agent finished speaking at: 2026-07-09 23:40:03.232
+2026-07-09 18:10:03,233 - INFO - 🤖 [TIMING] AI Agent started speaking at: 2026-07-09 23:40:03.233
+2026-07-09 18:10:05,458 - INFO - 🤖 [TIMING] AI Agent finished speaking at: 2026-07-09 23:40:05.458
+2026-07-09 18:10:12,172 - INFO - 🤖 [TIMING] AI Agent started speaking at: 2026-07-09 23:40:12.172
+2026-07-09 18:10:12,173 - INFO - 🤖 [TIMING] AI Agent finished speaking at: 2026-07-09 23:40:12.173
+2026-07-09 18:10:12,619 - INFO - 🤖 [TIMING] AI Agent started speaking at: 2026-07-09 23:40:12.619
+2026-07-09 18:10:12,619 - INFO - 🚨 [BARGE-IN] User interrupted AI at: 2026-07-09 23:40:12.619
+2026-07-09 18:10:12,620 - INFO - 🤖 [TIMING] AI Agent was interrupted at: 2026-07-09 23:40:12.619
+2026-07-09 18:10:12,621 - INFO - 🤖 [TIMING] AI Agent started speaking at: 2026-07-09 23:40:12.621
+2026-07-09 18:10:12,622 - INFO - 🤖 [TIMING] AI Agent finished speaking at: 2026-07-09 23:40:12.622
+2026-07-09 18:10:13,373 - INFO - 🤖 [TIMING] AI Agent started speaking at: 2026-07-09 23:40:13.373
+2026-07-09 18:10:13,374 - INFO - 🤖 [TIMING] AI Agent finished speaking at: 2026-07-09 23:40:13.374
+2026-07-09 18:10:13,491 - INFO - 🤖 [TIMING] AI Agent started speaking at: 2026-07-09 23:40:13.491
+2026-07-09 18:10:15,349 - INFO - 🤖 [TIMING] AI Agent finished speaking at: 2026-07-09 23:40:15.349
+2026-07-09 18:10:15,350 - INFO - 🤖 [TIMING] AI Agent started speaking at: 2026-07-09 23:40:15.350
+2026-07-09 18:10:15,351 - INFO - 🤖 [TIMING] AI Agent finished speaking at: 2026-07-09 23:40:15.351
+2026-07-09 18:10:15,352 - INFO - 🤖 [TIMING] AI Agent started speaking at: 2026-07-09 23:40:15.352
+2026-07-09 18:10:16,742 - INFO - 🤖 [TIMING] AI Agent finished speaking at: 2026-07-09 23:40:16.741
+2026-07-09 18:10:16,742 - INFO - 🤖 [TIMING] AI Agent started speaking at: 2026-07-09 23:40:16.742
+2026-07-09 18:10:16,743 - INFO - 🤖 [TIMING] AI Agent finished speaking at: 2026-07-09 23:40:16.743
+2026-07-09 18:10:16,744 - INFO - 🤖 [TIMING] AI Agent started speaking at: 2026-07-09 23:40:16.744
+2026-07-09 18:10:17,578 - INFO - 🤖 [TIMING] AI Agent finished speaking at: 2026-07-09 23:40:17.577
+2026-07-09 18:10:18,997 - INFO - 🤖 [TIMING] AI Agent started speaking at: 2026-07-09 23:40:18.997
+2026-07-09 18:10:18,998 - INFO - 🤖 [TIMING] AI Agent finished speaking at: 2026-07-09 23:40:18.998
+2026-07-09 18:10:23,456 - INFO - 🤖 [TIMING] AI Agent started speaking at: 2026-07-09 23:40:23.456
+2026-07-09 18:10:23,457 - INFO - 🤖 [TIMING] AI Agent finished speaking at: 2026-07-09 23:40:23.457
+2026-07-09 18:10:25,911 - INFO - 🤖 [TIMING] AI Agent started speaking at: 2026-07-09 23:40:25.911
+2026-07-09 18:10:25,912 - INFO - 🤖 [TIMING] AI Agent finished speaking at: 2026-07-09 23:40:25.912
+2026-07-09 18:10:29,922 - INFO - 🤖 [TIMING] AI Agent started speaking at: 2026-07-09 23:40:29.922
+2026-07-09 18:10:29,924 - INFO - 🤖 [TIMING] AI Agent finished speaking at: 2026-07-09 23:40:29.924
+2026-07-09 18:10:30,040 - INFO - 🤖 [TIMING] AI Agent started speaking at: 2026-07-09 23:40:30.040
+2026-07-09 18:10:31,045 - INFO - 🤖 [TIMING] AI Agent finished speaking at: 2026-07-09 23:40:31.045
+2026-07-09 18:10:31,046 - INFO - 🤖 [TIMING] AI Agent started speaking at: 2026-07-09 23:40:31.046
+2026-07-09 18:10:31,047 - INFO - 🤖 [TIMING] AI Agent finished speaking at: 2026-07-09 23:40:31.047
+2026-07-09 18:10:31,048 - INFO - 🤖 [TIMING] AI Agent started speaking at: 2026-07-09 23:40:31.048
+2026-07-09 18:10:33,282 - INFO - 🤖 [TIMING] AI Agent finished speaking at: 2026-07-09 23:40:33.282
+2026-07-09 18:10:33,283 - INFO - 🤖 [TIMING] AI Agent started speaking at: 2026-07-09 23:40:33.283
+2026-07-09 18:10:33,285 - INFO - 🤖 [TIMING] AI Agent finished speaking at: 2026-07-09 23:40:33.285
+2026-07-09 18:10:33,285 - INFO - 🤖 [TIMING] AI Agent started speaking at: 2026-07-09 23:40:33.285
+2026-07-09 18:10:34,395 - INFO - 🤖 [TIMING] AI Agent finished speaking at: 2026-07-09 23:40:34.395
+2026-07-09 18:10:34,396 - INFO - 🤖 [TIMING] AI Agent started speaking at: 2026-07-09 23:40:34.396
+2026-07-09 18:10:34,396 - INFO - 🤖 [TIMING] AI Agent finished speaking at: 2026-07-09 23:40:34.396
+2026-07-09 18:10:34,397 - INFO - 🤖 [TIMING] AI Agent started speaking at: 2026-07-09 23:40:34.397
+2026-07-09 18:10:36,473 - INFO - 🤖 [TIMING] AI Agent finished speaking at: 2026-07-09 23:40:36.473
+2026-07-09 18:10:36,474 - INFO - 🤖 [TIMING] AI Agent started speaking at: 2026-07-09 23:40:36.474
+2026-07-09 18:10:36,475 - INFO - 🤖 [TIMING] AI Agent finished speaking at: 2026-07-09 23:40:36.475
+2026-07-09 18:10:36,475 - INFO - 🤖 [TIMING] AI Agent started speaking at: 2026-07-09 23:40:36.475
+2026-07-09 18:10:36,476 - INFO - 🤖 [TIMING] AI Agent finished speaking at: 2026-07-09 23:40:36.476
+2026-07-09 18:10:36,477 - INFO - 🤖 [TIMING] AI Agent started speaking at: 2026-07-09 23:40:36.477
+2026-07-09 18:10:37,459 - INFO - 🤖 [TIMING] AI Agent finished speaking at: 2026-07-09 23:40:37.459
+2026-07-09 18:10:40,364 - INFO - 🤖 [TIMING] AI Agent started speaking at: 2026-07-09 23:40:40.364
+2026-07-09 18:10:40,366 - INFO - 🤖 [TIMING] AI Agent finished speaking at: 2026-07-09 23:40:40.366
+2026-07-09 18:10:43,709 - INFO - 🤖 [TIMING] AI Agent started speaking at: 2026-07-09 23:40:43.708
+2026-07-09 18:10:43,710 - INFO - 🤖 [TIMING] AI Agent finished speaking at: 2026-07-09 23:40:43.710
+2026-07-09 18:10:46,327 - INFO - 🤖 [TIMING] AI Agent started speaking at: 2026-07-09 23:40:46.327
+2026-07-09 18:10:46,328 - INFO - 🚨 [BARGE-IN] User interrupted AI at: 2026-07-09 23:40:46.328
+2026-07-09 18:10:46,328 - INFO - 🤖 [TIMING] AI Agent was interrupted at: 2026-07-09 23:40:46.328
+2026-07-09 18:10:46,329 - INFO - 🤖 [TIMING] AI Agent started speaking at: 2026-07-09 23:40:46.329
+2026-07-09 18:10:46,329 - INFO - 🤖 [TIMING] AI Agent finished speaking at: 2026-07-09 23:40:46.329
+2026-07-09 18:10:47,042 - INFO - 🔧 [TOOL CALL] noteSubscriptionRequest — args: "{\"user_name\":\"Soham Ghosh\",\"pin_code\":\"700001\",\"phone_number\":\"9800011105\",\"intended_plan\":\"monthly\",\"start_date\":\"2026-07-25\"}"
+2026-07-09 18:10:47,056 - INFO - 🔧 [TOOL RESULT READY] noteSubscriptionRequest — 12ms — input: "{\"user_name\":\"Soham Ghosh\",\"pin_code\":\"700001\",\"phone_number\":\"9800011105\",\"intended_plan\":\"monthly\",\"start_date\":\"2026-07-25\"}" — result: {"statusCode": 200, "message": "Subscription request recorded successfully.", "data": {"user_name": "Soham Ghosh", "phone_number": "9800011105", "plan": "monthly", "start_date": "2026-07-25"}}
+2026-07-09 18:10:47,872 - INFO - 🤖 [TIMING] AI Agent started speaking at: 2026-07-09 23:40:47.872
+2026-07-09 18:10:47,873 - INFO - 🤖 [TIMING] AI Agent finished speaking at: 2026-07-09 23:40:47.873
+2026-07-09 18:10:47,996 - INFO - 🤖 [TIMING] AI Agent started speaking at: 2026-07-09 23:40:47.995
+2026-07-09 18:10:50,834 - INFO - 🤖 [TIMING] AI Agent finished speaking at: 2026-07-09 23:40:50.834
+2026-07-09 18:10:50,835 - INFO - 🤖 [TIMING] AI Agent started speaking at: 2026-07-09 23:40:50.835
+2026-07-09 18:10:50,836 - INFO - 🤖 [TIMING] AI Agent finished speaking at: 2026-07-09 23:40:50.836
+2026-07-09 18:10:50,837 - INFO - 🤖 [TIMING] AI Agent started speaking at: 2026-07-09 23:40:50.837
+2026-07-09 18:10:51,807 - INFO - 🤖 [TIMING] AI Agent finished speaking at: 2026-07-09 23:40:51.807
+2026-07-09 18:10:51,808 - INFO - 🤖 [TIMING] AI Agent started speaking at: 2026-07-09 23:40:51.808
+2026-07-09 18:10:51,809 - INFO - 🤖 [TIMING] AI Agent finished speaking at: 2026-07-09 23:40:51.809
+2026-07-09 18:10:51,810 - INFO - 🤖 [TIMING] AI Agent started speaking at: 2026-07-09 23:40:51.810
+2026-07-09 18:10:52,645 - INFO - 🤖 [TIMING] AI Agent finished speaking at: 2026-07-09 23:40:52.645
+2026-07-09 18:10:56,582 - INFO - 🤖 [TIMING] AI Agent started speaking at: 2026-07-09 23:40:56.582
+2026-07-09 18:10:56,583 - INFO - 🤖 [TIMING] AI Agent finished speaking at: 2026-07-09 23:40:56.583
+2026-07-09 18:10:59,775 - INFO - 🤖 [TIMING] AI Agent started speaking at: 2026-07-09 23:40:59.775
+2026-07-09 18:10:59,776 - INFO - 🤖 [TIMING] AI Agent finished speaking at: 2026-07-09 23:40:59.776
+2026-07-09 18:11:02,287 - INFO - 🤖 [TIMING] AI Agent started speaking at: 2026-07-09 23:41:02.287
+2026-07-09 18:11:02,288 - INFO - 🤖 [TIMING] AI Agent finished speaking at: 2026-07-09 23:41:02.287
+2026-07-09 18:11:04,729 - INFO - 🤖 [TIMING] AI Agent started speaking at: 2026-07-09 23:41:04.729
+2026-07-09 18:11:04,731 - INFO - 🤖 [TIMING] AI Agent finished speaking at: 2026-07-09 23:41:04.731
+2026-07-09 18:11:04,852 - INFO - 🤖 [TIMING] AI Agent started speaking at: 2026-07-09 23:41:04.852
+2026-07-09 18:11:06,995 - INFO - 🤖 [TIMING] AI Agent finished speaking at: 2026-07-09 23:41:06.995
+2026-07-09 18:11:06,996 - INFO - 🤖 [TIMING] AI Agent started speaking at: 2026-07-09 23:41:06.995
+2026-07-09 18:11:06,996 - INFO - 🤖 [TIMING] AI Agent finished speaking at: 2026-07-09 23:41:06.996
+2026-07-09 18:11:06,997 - INFO - 🤖 [TIMING] AI Agent started speaking at: 2026-07-09 23:41:06.997
+2026-07-09 18:11:07,551 - INFO - 🤖 [TIMING] AI Agent finished speaking at: 2026-07-09 23:41:07.551
+2026-07-09 18:11:11,478 - INFO - 🤖 [TIMING] AI Agent started speaking at: 2026-07-09 23:41:11.478
+2026-07-09 18:11:11,479 - INFO - 🤖 [TIMING] AI Agent finished speaking at: 2026-07-09 23:41:11.479
+2026-07-09 18:11:13,053 - INFO - 🤖 [TIMING] AI Agent started speaking at: 2026-07-09 23:41:13.053
+2026-07-09 18:11:13,055 - INFO - 🤖 [TIMING] AI Agent finished speaking at: 2026-07-09 23:41:13.054
+2026-07-09 18:11:15,165 - ERROR - Error receiving response: Invalid input request, please fix your input and try again.
+2026-07-10 06:40:38,207 - INFO - PostgreSQL connection pool closed.
+2026-07-10 06:40:39,306 - INFO - ✅ PostgreSQL connection pool established.
+2026-07-10 06:40:39,357 - INFO - Starting Nova Sonic Web App on http://0.0.0.0:8009
