@@ -34,7 +34,7 @@ def get_current_time_str():
     return datetime.datetime.now(ZoneInfo("Asia/Kolkata")).strftime("%Y-%m-%d %H:%M:%S.%f")[:-3]
 
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, JSONResponse
 from starlette.websockets import WebSocketState
 
 from aws_sdk_bedrock_runtime.client import BedrockRuntimeClient, InvokeModelWithBidirectionalStreamOperationInput
@@ -940,6 +940,54 @@ async def get_index():
     html_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "static", "index.html")
     with open(html_path, "r") as f:
         return HTMLResponse(content=f.read())
+
+
+# ---- Records Desk: read-only DB snapshots for the right panel ----
+# The frontend only ever sends a slug; the table name and ORDER BY come from
+# THESE maps, never from the request, so interpolating them into SQL below is
+# injection-safe. Separate from the /ws voice path on purpose — a stateless read
+# that can never affect the Bedrock stream.
+TABLE_VIEWS = {
+    "new_subscribers":      ("new_user_details",      "start_date DESC NULLS LAST"),
+    "existing_subscribers": ("existing_user_details", "valid_till DESC NULLS LAST"),
+    "prospects":            ("new_customers",          "startdate DESC NULLS LAST"),
+    "renewals":             ("plan_extension",         "call_date DESC NULLS LAST"),
+}
+
+# Column render order per view so NULL-heavy rows still get a stable layout.
+TABLE_COLUMNS = {
+    "new_subscribers":      ["user_name", "phone_number", "address", "plan",
+                             "start_date", "verification_status", "payment_status", "user_status"],
+    "existing_subscribers": ["user_name", "contact_number", "address", "plan",
+                             "valid_till", "status"],
+    "prospects":            ["user_name", "contact_number", "address",
+                             "intended_plan", "startdate", "message"],
+    "renewals":             ["id", "user_name", "contact_number", "address",
+                             "requested_plan", "extended_date", "payment_status",
+                             "call_date", "verification_status", "interest"],
+}
+
+
+@app.get("/api/tables/{slug}")
+async def get_table(slug: str):
+    """Read-only snapshot of one whitelisted DB table for the Records Desk panel."""
+    view = TABLE_VIEWS.get(slug)
+    if not view:
+        return JSONResponse({"error": "Unknown table."}, status_code=404)
+
+    table, order_by = view
+    try:
+        from db import fetch_all
+        # fetch_all is sync/blocking (psycopg2) — offload like the tool calls do,
+        # so the event loop serving the WebSocket audio is never blocked.
+        rows = await asyncio.to_thread(fetch_all, f"SELECT * FROM {table} ORDER BY {order_by}")
+        payload = {"slug": slug, "columns": TABLE_COLUMNS[slug], "rows": rows}
+        # default=str: date/datetime/Decimal columns aren't JSON-native and would
+        # otherwise raise TypeError (same fix as the tool-result serialization).
+        return JSONResponse(content=json.loads(json.dumps(payload, default=str)))
+    except Exception as e:
+        logger.error(f"/api/tables/{slug} failed: {e}")
+        return JSONResponse({"error": "Couldn't load records."}, status_code=500)
 
 
 @app.websocket("/ws")

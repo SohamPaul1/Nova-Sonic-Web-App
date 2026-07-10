@@ -14,6 +14,7 @@ This project converts the AWS sample console application into a modern web inter
 - **Text-Only Chat (mute-safe)**: Mute the mic and type instead. While muted the VAD is paused and mic noise can no longer barge in, so text-only conversations aren't cut off or silenced mid-reply. Silent frames still keep the Bedrock stream warm so typed messages get a prompt response.
 - **Digit-by-digit numbers**: The agent speaks phone numbers / PIN codes one digit at a time (written as hyphenated digits, e.g. `9-8-0-0-...`), while the on-screen transcript collapses them to the joined form (`9800...`). Display-only — the spoken audio is untouched.
 - **Tool Integration**: Includes sample tools (Date/Time and Order Tracking) that the model can invoke to fetch real-time data.
+- **Live Records Desk**: The right panel shows the newspaper's DB tables (new/existing subscribers, prospects, renewals), one at a time with prev/next navigation. It auto-refreshes every 5s and **gold-flashes newly written rows**, so you watch records appear as the agent books them mid-call. Read-only, served over a plain HTTP endpoint (`GET /api/tables/{slug}`) fully independent of the voice WebSocket.
 - **Configurable Prompt**: The system prompt is loaded from a text file for easy customization without restarting the server.
 
 ## Architecture
@@ -56,6 +57,14 @@ Bedrock streams the assistant's transcript text and its audio as **independent, 
 4. **Fallback**: if buffered text never receives audio (e.g. a text-only reply or dropped audio), it drips in at a gentle fixed reading speed after a short timeout, so text is never left hidden.
 
 This is entirely frontend logic (in `static/index.html`); the backend is unchanged. Reveal speed/fallback knobs are the `NO_AUDIO_FALLBACK_MS` and `FALLBACK_WPS` constants near the top of the page script.
+
+### Live Records Desk (right panel)
+
+The right panel is a self-contained "Records Desk" that reads the DB tables the agent uses:
+
+- **Endpoint**: `GET /api/tables/{slug}` in `main.py` returns `{columns, rows}` for one whitelisted table. Slugs (`new_subscribers`, `existing_subscribers`, `prospects`, `renewals`) map to real table names via a server-side `TABLE_VIEWS` whitelist — the request never names a table, so it's injection-safe. Rows are serialized with `default=str` so `date`/`timestamp` columns don't break JSON.
+- **Frontend**: an IIFE `<script>` in `static/index.html` (isolated from the voice code) fetches one table at a time, humanizes headers, renders status pills, and polls every 5s. It diffs by a stable row key and adds a fading gold flash to rows that appear since the last poll. Failures show an inline retry state and never interrupt the voice UI.
+- **⚠️ Security**: the endpoint is unauthenticated and returns customer PII (phone numbers, addresses). Fine for an internal tool on a trusted network; gate it (auth/same-origin) or mask fields before any wider deployment.
 
 ## Prerequisites
 

@@ -553,6 +553,233 @@
             box-shadow: none;
         }
 
+        /* ===== Records Desk (right panel) ===== */
+        .records-desk {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
+        }
+
+        .desk-masthead {
+            text-align: center;
+            padding: 1.25rem 1.5rem 0.75rem;
+            border-bottom: 1px solid var(--border-subtle);
+            flex-shrink: 0;
+        }
+
+        .desk-eyebrow {
+            font-size: 0.65rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.18em;
+        }
+
+        .desk-title {
+            font-size: 1.4rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-secondary) 50%, #60a5fa 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: -0.02em;
+            margin-top: 0.15rem;
+        }
+
+        .desk-subtitle {
+            font-size: 0.72rem;
+            color: var(--text-muted);
+            margin-top: 0.1rem;
+        }
+
+        .desk-nav {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            padding: 0.75rem 1rem;
+            flex-shrink: 0;
+        }
+
+        .desk-nav-btn {
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            border: 1px solid var(--border-subtle);
+            background: var(--bg-card);
+            color: var(--text-secondary);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            transition: all 0.25s ease;
+        }
+
+        .desk-nav-btn:hover {
+            border-color: var(--accent);
+            color: var(--text-primary);
+            background: var(--bg-card-hover);
+        }
+
+        .desk-dots {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .desk-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--text-muted);
+            cursor: pointer;
+            transition: all 0.25s ease;
+            opacity: 0.5;
+        }
+
+        .desk-dot.active {
+            background: var(--accent);
+            opacity: 1;
+            box-shadow: 0 0 8px var(--accent-glow);
+        }
+
+        .desk-table-scroll {
+            flex: 1;
+            min-height: 0;
+            overflow: auto;
+            padding: 0 1rem 1rem;
+            scrollbar-width: thin;
+            scrollbar-color: rgba(255,255,255,0.08) transparent;
+        }
+
+        .desk-table-scroll::-webkit-scrollbar { width: 6px; height: 6px; }
+        .desk-table-scroll::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 4px; }
+
+        .desk-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.8rem;
+            white-space: nowrap;
+        }
+
+        .desk-table thead th {
+            position: sticky;
+            top: 0;
+            background: var(--bg-secondary);
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            font-size: 0.62rem;
+            font-weight: 600;
+            letter-spacing: 0.08em;
+            text-align: left;
+            padding: 0.6rem 0.8rem;
+            border-bottom: 1px solid var(--border-subtle);
+            z-index: 1;
+        }
+
+        .desk-table tbody td {
+            padding: 0.55rem 0.8rem;
+            border-bottom: 1px solid var(--border-subtle);
+            color: var(--text-primary);
+            font-variant-numeric: tabular-nums;
+        }
+
+        .desk-table tbody tr:nth-child(even) {
+            background: var(--bg-card);
+        }
+
+        .desk-table tbody tr:hover {
+            background: var(--bg-card-hover);
+        }
+
+        .cell-muted { color: var(--text-muted); }
+
+        .pill {
+            display: inline-block;
+            padding: 0.15rem 0.55rem;
+            border-radius: 100px;
+            font-size: 0.68rem;
+            font-weight: 500;
+            text-transform: capitalize;
+            border: 1px solid var(--border-subtle);
+            color: var(--text-secondary);
+        }
+        .pill.ok      { color: var(--success); border-color: var(--success-glow); background: rgba(74,222,128,0.08); }
+        .pill.pending { color: var(--warning); border-color: rgba(251,191,36,0.3); background: rgba(251,191,36,0.08); }
+        .pill.bad     { color: var(--error);   border-color: var(--error-glow);   background: rgba(248,113,113,0.08); }
+
+        @keyframes rowFlash {
+            from { background: rgba(251, 191, 36, 0.28); }
+            to   { background: transparent; }
+        }
+        .desk-table tbody tr.row-new {
+            animation: rowFlash 2.5s ease-out;
+        }
+
+        .desk-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            gap: 0.5rem;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            opacity: 0.7;
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .desk-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.6rem 1.25rem;
+            border-top: 1px solid var(--border-subtle);
+            flex-shrink: 0;
+            font-size: 0.68rem;
+            color: var(--text-muted);
+        }
+
+        .desk-sync {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .desk-sync-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--success);
+            box-shadow: 0 0 6px var(--success-glow);
+            animation: statusPulse 2s ease-in-out infinite;
+        }
+
+        .desk-refresh {
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: 100px;
+            color: var(--text-secondary);
+            padding: 0.3rem 0.75rem;
+            font-size: 0.68rem;
+            font-family: inherit;
+            cursor: pointer;
+            transition: all 0.25s ease;
+        }
+
+        .desk-refresh:hover {
+            border-color: var(--accent);
+            color: var(--text-primary);
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .desk-table tbody tr.row-new { animation: none; }
+            .desk-sync-dot { animation: none; }
+        }
+
         /* ===== Responsive ===== */
         @media (max-width: 900px) {
             .page-body {
@@ -656,8 +883,27 @@
                 </div>
             </div>
 
-            <!-- Right Panel: Blank white area (placeholder) -->
+            <!-- Right Panel: Records Desk (live DB tables) -->
             <div class="right-panel">
+                <div class="records-desk">
+                    <div class="desk-masthead">
+                        <div class="desk-eyebrow">Records Desk</div>
+                        <div class="desk-title" id="desk-title">New Subscribers</div>
+                        <div class="desk-subtitle" id="desk-subtitle">Fresh sign-ups</div>
+                    </div>
+                    <div class="desk-nav">
+                        <button class="desk-nav-btn" id="desk-prev" aria-label="Previous table">‹</button>
+                        <div class="desk-dots" id="desk-dots"></div>
+                        <button class="desk-nav-btn" id="desk-next" aria-label="Next table">›</button>
+                    </div>
+                    <div class="desk-table-scroll" id="desk-scroll">
+                        <div class="desk-state">Loading records…</div>
+                    </div>
+                    <div class="desk-footer">
+                        <span class="desk-sync"><span class="desk-sync-dot"></span><span id="desk-sync-text">syncing…</span></span>
+                        <button class="desk-refresh" id="desk-refresh">⟳ Refresh</button>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -1385,6 +1631,182 @@
                     break;
             }
         }
+    </script>
+
+    <!-- ==================== Records Desk (right panel) ==================== -->
+    <!-- Self-contained: fetches read-only table snapshots over plain HTTP.
+         Fully independent of the voice WebSocket above; wrapped in an IIFE so
+         no globals leak into the voice code. -->
+    <script>
+    (function recordsDesk() {
+        const VIEWS = [
+            { slug: 'new_subscribers',      label: 'New Subscribers',      subtitle: 'Fresh sign-ups' },
+            { slug: 'existing_subscribers', label: 'Existing Subscribers', subtitle: 'Active readers' },
+            { slug: 'prospects',            label: 'Prospects',            subtitle: 'Interested leads' },
+            { slug: 'renewals',             label: 'Renewals',             subtitle: 'Extension requests' },
+        ];
+        const REFRESH_MS = 5000;
+
+        const LABELS = {
+            user_name: 'Name', phone_number: 'Phone', contact_number: 'Phone', address: 'Address',
+            plan: 'Plan', intended_plan: 'Intended Plan', requested_plan: 'Requested Plan',
+            start_date: 'Start', startdate: 'Start', valid_till: 'Valid Till', extended_date: 'Extended',
+            call_date: 'Called', verification_status: 'Verification', payment_status: 'Payment',
+            user_status: 'Status', status: 'Status', interest: 'Interest', message: 'Message', id: '#',
+        };
+
+        // Stable identity key per row so a status change doesn't re-flash a row.
+        function rowKey(slug, row) {
+            const phone = row.phone_number || row.contact_number || '';
+            if (slug === 'renewals') return 'id:' + row.id;
+            if (slug === 'existing_subscribers') return phone;
+            return phone + '|' + (row.plan || row.intended_plan || '');
+        }
+
+        function pillClass(value) {
+            const v = String(value || '').toLowerCase();
+            if (['active', 'verified', 'paid', 'interested', 'completed', 'success'].includes(v)) return 'ok';
+            if (['pending', 'processing'].includes(v)) return 'pending';
+            if (['not interested', 'failed', 'cancelled', 'expired', 'rejected'].includes(v)) return 'bad';
+            return '';
+        }
+        const PILL_COLS = new Set(['status', 'user_status', 'payment_status', 'verification_status', 'interest']);
+
+        const el = {
+            title: document.getElementById('desk-title'),
+            subtitle: document.getElementById('desk-subtitle'),
+            dots: document.getElementById('desk-dots'),
+            prev: document.getElementById('desk-prev'),
+            next: document.getElementById('desk-next'),
+            scroll: document.getElementById('desk-scroll'),
+            sync: document.getElementById('desk-sync-text'),
+            refresh: document.getElementById('desk-refresh'),
+        };
+
+        let activeIndex = 0;
+        let seenKeys = new Set();   // row keys from the previous render of the active table
+        let lastSyncedAt = null;
+        let timer = null;
+
+        function renderDots() {
+            el.dots.innerHTML = '';
+            VIEWS.forEach((v, i) => {
+                const d = document.createElement('span');
+                d.className = 'desk-dot' + (i === activeIndex ? ' active' : '');
+                d.title = v.label;
+                d.addEventListener('click', () => goTo(i));
+                el.dots.appendChild(d);
+            });
+        }
+
+        function fmtCell(col, value) {
+            if (value === null || value === undefined || value === '') {
+                return '<span class="cell-muted">—</span>';
+            }
+            const text = String(value);
+            const safe = text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+            if (PILL_COLS.has(col)) {
+                return '<span class="pill ' + pillClass(text) + '">' + safe + '</span>';
+            }
+            return safe;
+        }
+
+        function renderTable(data, isRefresh) {
+            const cols = data.columns || [];
+            const rows = data.rows || [];
+            if (!rows.length) {
+                el.scroll.innerHTML = '<div class="desk-state">No records yet.</div>';
+                seenKeys = new Set();
+                return;
+            }
+            const slug = data.slug;
+            const table = document.createElement('table');
+            table.className = 'desk-table';
+
+            const thead = document.createElement('thead');
+            const htr = document.createElement('tr');
+            cols.forEach(c => {
+                const th = document.createElement('th');
+                th.textContent = LABELS[c] || c;
+                htr.appendChild(th);
+            });
+            thead.appendChild(htr);
+            table.appendChild(thead);
+
+            const tbody = document.createElement('tbody');
+            const nextSeen = new Set();
+            rows.forEach(row => {
+                const key = rowKey(slug, row);
+                nextSeen.add(key);
+                const tr = document.createElement('tr');
+                // Flash only on a refresh, only for keys not present last tick.
+                if (isRefresh && !seenKeys.has(key)) tr.className = 'row-new';
+                cols.forEach(c => {
+                    const td = document.createElement('td');
+                    td.innerHTML = fmtCell(c, row[c]);
+                    tr.appendChild(td);
+                });
+                tbody.appendChild(tr);
+            });
+            table.appendChild(tbody);
+
+            el.scroll.innerHTML = '';
+            el.scroll.appendChild(table);
+            seenKeys = nextSeen;
+        }
+
+        async function loadTable(isRefresh) {
+            const view = VIEWS[activeIndex];
+            try {
+                const res = await fetch('/api/tables/' + view.slug, { cache: 'no-store' });
+                if (!res.ok) throw new Error('HTTP ' + res.status);
+                const data = await res.json();
+                renderTable(data, isRefresh);
+                lastSyncedAt = Date.now();
+                updateSyncLabel();
+            } catch (err) {
+                // Never throw, never alert — keep the interval alive and retry.
+                if (!isRefresh) {
+                    el.scroll.innerHTML = '<div class="desk-state">Couldn\'t reach the records desk. Retrying…</div>';
+                }
+                el.sync.textContent = 'reconnecting…';
+            }
+        }
+
+        function updateSyncLabel() {
+            if (lastSyncedAt === null) { el.sync.textContent = 'syncing…'; return; }
+            const secs = Math.round((Date.now() - lastSyncedAt) / 1000);
+            el.sync.textContent = secs <= 1 ? 'synced just now' : 'synced ' + secs + 's ago';
+        }
+
+        function goTo(i) {
+            activeIndex = (i + VIEWS.length) % VIEWS.length;
+            const v = VIEWS[activeIndex];
+            el.title.textContent = v.label;
+            el.subtitle.textContent = v.subtitle;
+            renderDots();
+            seenKeys = new Set();               // fresh table → don't flash existing rows
+            el.scroll.innerHTML = '<div class="desk-state">Loading records…</div>';
+            loadTable(false);
+        }
+
+        el.prev.addEventListener('click', () => goTo(activeIndex - 1));
+        el.next.addEventListener('click', () => goTo(activeIndex + 1));
+        el.refresh.addEventListener('click', () => loadTable(true));
+
+        // Poll the current table; pause while the tab is hidden to avoid idle load.
+        function startPolling() {
+            if (timer) return;
+            timer = setInterval(() => {
+                if (!document.hidden) { loadTable(true); }
+                updateSyncLabel();
+            }, REFRESH_MS);
+        }
+
+        renderDots();
+        goTo(0);
+        startPolling();
+    })();
     </script>
 </body>
 </html>
